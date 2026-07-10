@@ -84,13 +84,37 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (populated by roadmap) | | |
+| INDX-01 | Phase 1 | Pending |
+| INDX-02 | Phase 1 | Pending |
+| INDX-03 | Phase 1 | Pending |
+| INDX-04 | Phase 5 | Pending |
+| SCOR-01 | Phase 2 | Pending |
+| SCOR-02 | Phase 2 | Pending |
+| SCOR-03 | Phase 2 | Pending |
+| SCOR-04 | Phase 2 | Pending |
+| MCPS-01 | Phase 3 | Pending |
+| MCPS-02 | Phase 3 | Pending |
+| MCPS-03 | Phase 3 | Pending |
+| MCPS-04 | Phase 3 | Pending |
+| MCPS-05 | Phase 3 | Pending |
+| PAYX-01 | Phase 4 | Pending |
+| PAYX-02 | Phase 4 | Pending |
+| PAYX-03 | Phase 4 | Pending |
+| WEB-01 | Phase 3 | Pending |
+| WEB-02 | Phase 3 | Pending |
+| WEB-03 | Phase 3 | Pending |
+| OPS-01 | Phase 3 | Pending |
+| OPS-02 | Phase 5 | Pending |
+| OPS-03 | Phase 5 | Pending |
+| SUBM-01 | Phase 5 | Pending |
+| SUBM-02 | Phase 5 | Pending |
+| SUBM-03 | Phase 5 | Pending |
 
 **Coverage:**
-- v1 requirements: 24 total
-- Mapped to phases: 0
-- Unmapped: 24 ⚠️ (roadmap pending)
+- v1 requirements: 25 total (count corrected from 24 during roadmap mapping — MCP Server section contains 5 IDs)
+- Mapped to phases: 25
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-10*
-*Last updated: 2026-07-10 after initial definition*
+*Last updated: 2026-07-10 after roadmap creation (traceability mapped, 5 phases)*
