@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trustlens"
+version = "0.1.0"
+description = "TrustLens - pay-per-call trust scores for OKX.AI marketplace agents (MCP + x402)"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi==0.139.0",
+    "fastmcp>=3,<4",
+    "uvicorn==0.51.0",
+    "httpx==0.28.1",
+    "beautifulsoup4==4.15.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+    "pytest-cov==7.1.0",
+]
+
+[tool.setuptools]
+# Phase 2 adds "scoring", Phase 3 adds "server" to this list
+packages = ["indexer"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
