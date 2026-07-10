@@ -34,7 +34,7 @@ Plans:
 - [x] 01-01-PLAN.md — Scaffold (pyproject with pinned deps, pytest tooling) + verified pure field parsers (wave 1)
 - [x] 01-02-PLAN.md — Deterministic 9-bucket category derivation + full-census distribution pin (wave 2)
 - [x] 01-03-PLAN.md — SQLite persistence: locked DDL, WAL, idempotent upsert, snapshot append (wave 2)
-- [ ] 01-04-PLAN.md — Census loader + `python -m indexer.refresh` CLI + full-census integration proof (wave 3)
+- [x] 01-04-PLAN.md — Census loader + `python -m indexer.refresh` CLI + full-census integration proof (wave 3)
 
 ### Phase 2: Scoring Engine
 **Goal**: Every indexed agent gets a deterministic, explainable, neutrally-worded 0–100 TrustScore with A–F grade — pure functions with no I/O and no wall clock
