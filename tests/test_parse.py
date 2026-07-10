@@ -105,6 +105,12 @@ def test_parse_price_subscript_five():
     assert parse_price("0.0₅1 USDT") == 0.000001
 
 
+def test_parse_price_no_space_before_usdt():
+    # _PLAIN_PRICE uses \s* before USDT, so the no-space variant is a valid
+    # price — which is why _price_token must strip it identically (WR-04).
+    assert parse_price("5USDT") == 5.0
+
+
 def test_parse_price_blank_is_none():
     assert parse_price("") is None  # 28 real rows have an empty price
 
@@ -139,6 +145,13 @@ def test_rating_rule_a_price_echo_that_looks_like_perfect_rating():
 def test_rating_rule_a_price_echo_half():
     # id 4137: echo '0.5' of '0.5 USDT'
     assert parse_rating_positive("0.5", "", "0.5 USDT") == (None, None)
+
+
+def test_rating_rule_a_price_echo_no_space_before_usdt():
+    # WR-04 regression: parse_price accepts '5USDT' (no space) as 5.0, so the
+    # echo gate must strip the same no-space suffix — otherwise the echoed
+    # '5' would be stored as a genuine 5-star rating.
+    assert parse_rating_positive("5", "100% positive", "5USDT") == (None, 100.0)
 
 
 def test_rating_rule_a_paragraph_positive_with_real_rating():

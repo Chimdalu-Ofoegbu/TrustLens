@@ -53,8 +53,13 @@ def parse_price(cell: str) -> float | None:
 
 
 def _price_token(price_cell: str) -> str:
+    """Number part of a price cell, for the rule-A echo comparison.
+
+    Must tolerate exactly the whitespace _PLAIN_PRICE tolerates (\\s* before
+    USDT): if '5USDT' parses as a price, '5' must be treated as its echo.
+    """
     s = price_cell.strip()
-    return s[: -len(" USDT")].strip() if s.endswith(" USDT") else s
+    return re.sub(r"\s*USDT$", "", s).strip()
 
 
 def parse_rating_positive(rating_cell: str, positive_cell: str,
