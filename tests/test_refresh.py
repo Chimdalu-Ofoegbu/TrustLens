@@ -282,3 +282,32 @@ def test_cli_dateless_filename_returns_2(tmp_path):
     assert main(
         ["--csv", str(mini), "--db", str(db), "--captured-at", SEED_TS]
     ) == 0
+
+
+def test_cli_non_utf8_csv_returns_1(tmp_path):
+    # WR-02 regression: an undecodable file IS an "unreadable csv" — exit 1
+    # with a logged error, never a UnicodeDecodeError traceback.
+    bad = tmp_path / "census-2026-07-10.csv"
+    bad.write_bytes(
+        b"id,name,tagline,rating,positive,sold,price\n"
+        b"9001,Caf\xe9 Agent,t,,,0 sold,1 USDT\n"  # lone 0xE9 is invalid UTF-8
+    )
+    assert main(["--csv", str(bad), "--db", str(tmp_path / "bad.db")]) == 1
+
+
+def test_cli_oversized_cell_returns_1(tmp_path):
+    # WR-02 regression: csv.field_size_limit (128 KB) is the T-04-04 DoS
+    # bound — exceeding it must exit 1, not crash with an unhandled csv.Error.
+    huge = tmp_path / "census-2026-07-10.csv"
+    huge.write_text(
+        "id,name,tagline,rating,positive,sold,price\n"
+        '9001,Big Agent,"' + "x" * 200_000 + '",,,0 sold,1 USDT\n',
+        encoding="utf-8",
+    )
+    assert main(["--csv", str(huge), "--db", str(tmp_path / "huge.db")]) == 1
+
+
+def test_cli_unopenable_db_returns_2(tmp_path):
+    # WR-02 regression: a --db that cannot be opened (here: an existing
+    # directory) is an environment failure — exit 2, distinct from csv's 1.
+    assert main(["--csv", str(CSV_PATH), "--db", str(tmp_path)]) == 2

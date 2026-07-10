@@ -7,11 +7,13 @@ Determinism: captured_at is always injected. The CLI derives its default from
 the YYYY-MM-DD date in the csv filename (seed baseline 2026-07-10T00:00:00Z);
 tests pass it explicitly. Seed data never falls back to the wall clock.
 
-Exit codes: 0 success, 1 missing/unreadable csv, 2 captured-at underivable.
+Exit codes: 0 success; 1 missing/unreadable/undecodable csv (data problem);
+2 captured-at underivable or database failure (environment problem).
 """
 from __future__ import annotations
 
 import argparse
+import csv
 import logging
 import re
 import sqlite3
@@ -59,14 +61,18 @@ def persist(
         insert_snapshot(conn, rec, captured_at, source)
 
 
-def refresh(
-    csv_path: str | Path,
+def _persist_records(
     db_path: str | Path,
+    records: list[AgentRecord],
+    field_warnings: int,
     captured_at: str,
     source: str = "census",
 ) -> RefreshSummary:
-    """Load the census and persist agents + snapshots in one atomic transaction."""
-    records, warnings = load_census(csv_path)
+    """DB stage of a refresh: open, init, persist atomically, summarize.
+
+    Split from the CSV stage so main() can attribute a failure to its side
+    of the pipeline unambiguously: csv-side -> exit 1, db-side -> exit 2.
+    """
     conn = connect(db_path)
     try:
         init_db(conn)
@@ -77,9 +83,20 @@ def refresh(
     return RefreshSummary(
         agents=len(records),
         snapshots_appended=len(records),
-        field_warnings=warnings,
+        field_warnings=field_warnings,
         source=source,
     )
+
+
+def refresh(
+    csv_path: str | Path,
+    db_path: str | Path,
+    captured_at: str,
+    source: str = "census",
+) -> RefreshSummary:
+    """Load the census and persist agents + snapshots in one atomic transaction."""
+    records, warnings = load_census(csv_path)
+    return _persist_records(db_path, records, warnings, captured_at, source)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -134,11 +151,21 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         captured_at = f"{m.group(0)}T00:00:00Z"
 
+    # Two stages, two exit codes: csv-side failures are data problems (1),
+    # db-side failures are environment problems (2) — see module docstring.
+    # An undecodable file or an over-limit cell (csv.field_size_limit,
+    # T-04-04) is an unreadable csv by the same definition as a missing one.
     try:
-        summary = refresh(csv_path, args.db, captured_at)
-    except OSError as exc:
+        records, field_warnings = load_census(csv_path)
+    except (OSError, UnicodeDecodeError, csv.Error) as exc:
         log.error("failed to read census csv %s: %s", csv_path, exc)
         return 1
+
+    try:
+        summary = _persist_records(args.db, records, field_warnings, captured_at)
+    except (OSError, sqlite3.Error) as exc:
+        log.error("database error at %s: %s", args.db, exc)
+        return 2
 
     log.info(
         "refresh complete: %d agents, %d snapshots appended, "
