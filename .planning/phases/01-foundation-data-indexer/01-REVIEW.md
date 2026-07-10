@@ -21,7 +21,7 @@ findings:
   warning: 4
   info: 3
   total: 7
-status: issues_found
+status: clean
 ---
 
 # Phase 1: Code Review Report
@@ -160,3 +160,15 @@ if mode != "wal":
 _Reviewed: 2026-07-10T22:41:40Z_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_
+
+## Fixes Applied (2026-07-10T22:54:07Z)
+
+All four warnings fixed and verified — suite grew 71 -> 78 tests, all passing;
+the census-pinned distribution/aggregate/edge-row tests pass unchanged, proving
+zero drift across the 272 committed results. Info findings IN-01/02/03 remain
+documented above for a later pass.
+
+- WR-01 `5a577ec` — parse_sold guards the float conversion; comma-only groups return None (regression test: `", sold"`, `",,, sold"`)
+- WR-02 `2c697bc` — main() runs load and persist in separate try blocks: OSError/UnicodeDecodeError/csv.Error on the csv side exit 1 (data), OSError/sqlite3.Error on the db side exit 2 (environment), per the 01-04-PLAN exit-code contract (tests: non-UTF-8 csv, over-limit cell, --db pointing at a directory)
+- WR-03 `bc1e5c3` — census.py logs ids with %r on both warning lines; crafted newline-embedded id cell test proves no raw newline reaches the log
+- WR-04 `e054e04` — _price_token strips `\s*USDT$` exactly like _PLAIN_PRICE; `parse_rating_positive("5", "100% positive", "5USDT")` now yields (None, 100.0)
