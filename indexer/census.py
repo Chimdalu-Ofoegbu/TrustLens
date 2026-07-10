@@ -10,8 +10,9 @@ Wiring rules (locked/verified against all 272 real rows, 01-RESEARCH.md):
 - Rows are never skipped wholesale and field content never raises: unparseable
   fields degrade per the locked rules below (fail loud, don't crash).
 - Warning messages carry ONLY row numbers and ids — never raw cell text.
-  Embedded newlines in cells would allow log injection, and CJK text crashes
-  cp1252 consoles (research Pitfall 6).
+  The id itself comes from a cell, so it is logged with %r: embedded newlines
+  in cells would otherwise allow log injection, and CJK text crashes cp1252
+  consoles (research Pitfall 6).
 - No count assertions live here: the Phase 5 scrape loader changes counts, so
   the 272-row assertion belongs to the integration tests only.
 """
@@ -65,12 +66,12 @@ def load_census(csv_path: str | Path) -> tuple[list[AgentRecord], int]:
             if sold is None:
                 sold = 0
                 warnings += 1
-                log.warning("row %d id=%s: sold unparseable, storing 0", row_num, row_id)
+                log.warning("row %d id=%r: sold unparseable, storing 0", row_num, row_id)
 
             price = parse_price(price_cell)
             if price is None and price_cell:
                 warnings += 1
-                log.warning("row %d id=%s: price unparseable, storing NULL", row_num, row_id)
+                log.warning("row %d id=%r: price unparseable, storing NULL", row_num, row_id)
 
             rating, positive_pct = parse_rating_positive(
                 rating_cell, positive_cell, price_cell

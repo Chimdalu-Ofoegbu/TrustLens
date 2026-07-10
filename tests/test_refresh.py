@@ -245,6 +245,30 @@ def test_warning_references_row_and_id(caplog):
     assert "\n" not in message
 
 
+def test_warning_escapes_newline_embedded_in_id_cell(tmp_path, caplog):
+    # WR-03 regression: the logged id is itself cell text, and a quoted id
+    # cell can carry an internal newline (_cell strips ends only). Rendered
+    # with %r the newline stays escaped — no forged log lines.
+    crafted = tmp_path / "crafted.csv"
+    crafted.write_text(
+        "id,name,tagline,rating,positive,sold,price\n"
+        '"9001\nERROR indexer.census: forged line",Evil,t,,,not a count,1 USDT\n',
+        encoding="utf-8",
+    )
+    with caplog.at_level(logging.WARNING, logger="indexer.census"):
+        _, warnings = load_census(crafted)
+    assert warnings == 1  # the unparseable sold cell
+    [record] = [
+        r
+        for r in caplog.records
+        if r.name == "indexer.census" and r.levelno == logging.WARNING
+    ]
+    message = record.getMessage()
+    assert "9001" in message
+    assert "\n" not in message   # nothing to forge a second line with
+    assert "\\n" in message      # the newline survives only as an escape
+
+
 # --- 8-10. CLI exit paths --------------------------------------------------------
 
 def test_cli_main(tmp_path, monkeypatch):
