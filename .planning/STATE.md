@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-07-10T21:40:27.296Z"
-last_activity: 2026-07-10 — Roadmap created (5 phases, 25/25 v1 requirements mapped)
+status: executing
+stopped_at: Completed 01-02-PLAN.md
+last_updated: "2026-07-10T22:03:15.866Z"
+last_activity: 2026-07-10
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 4
-  completed_plans: 1
-  percent: 25
+  completed_plans: 2
+  percent: 50
 ---
 
 # Project State
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-07-10)
 ## Current Position
 
 Phase: 1 of 5 (Foundation & Data Indexer)
-Plan: 2 of 4 (01-01 complete; next 01-02)
-Status: Executing phase
-Last activity: 2026-07-10 — Completed 01-01 (pyproject scaffold + census field parsers, 36 tests green)
+Plan: 3 of 4 (01-01 complete; next 01-02)
+Status: Ready to execute
+Last activity: 2026-07-10
 
 Progress: [███░░░░░░░] 25%
 
@@ -53,6 +53,7 @@ Progress: [███░░░░░░░] 25%
 
 *Updated after each plan completion*
 | Phase 01 P01 | 11 min | 2 tasks | 5 files |
+| Phase 01-foundation-data-indexer P02 | 15 min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -65,6 +66,7 @@ Recent decisions affecting current work:
 - [Roadmap]: Ops distributed, not deferred — Dockerfile/compose/.env.example land with Phase 3 (server), README registration section finalized in Phase 5 after the Phase 4 curl check is rehearsable
 - [Pre-build]: x402 v2 implemented natively + `X402_MOCK` verifier; `okxweb3-app-x402` documented as deploy-time drop-in (SDK needs wallet-tied OKX creds = human stop condition)
 - [Pre-build]: Pin `fastmcp>=3,<4` — FastMCP is 3.x; v2-era tutorials and constructor kwargs are wrong
+- [Phase 01-02]: Substring-match override for cafe/restaurant keywords (mechanics-level SUBSTRING_KEYWORDS set; locked table untouched) — Census row 3509 carries only plural forms cafes/restaurants; word-bounded singular matching missed both and broke the research-verified distribution. Census scan proved only row 3509 contains either string.
 
 ### Pending Todos
 
@@ -87,6 +89,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-07-10T21:40:27.280Z
-Stopped at: Completed 01-01-PLAN.md
+Last session: 2026-07-10T22:01:20.626Z
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None
