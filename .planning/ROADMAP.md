@@ -28,7 +28,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   1. `python -m indexer.refresh` loads exactly 272 agents from the census CSV into SQLite with zero network access
   2. All four observed census edge cases parse to correct values under fixture tests: "1.55K sold" → 1550; "0.0₄15 USDT" → 0.000015; shifted rating column → missing rating (never a false near-zero rating); multiline quoted taglines and CJK names ("这个能吃吗？") preserved with NFKC-normalized name lookup
   3. `agents` table persists id, name, category (populated by a documented deterministic method — the source decision resolved this phase), price, sold, rating, positive_pct, tagline, first_seen, last_seen; `snapshots` gains one time-series row per refresh, and re-running refresh does not corrupt or duplicate agents
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Scaffold (pyproject with pinned deps, pytest tooling) + verified pure field parsers (wave 1)
+- [ ] 01-02-PLAN.md — Deterministic 9-bucket category derivation + full-census distribution pin (wave 2)
+- [ ] 01-03-PLAN.md — SQLite persistence: locked DDL, WAL, idempotent upsert, snapshot append (wave 2)
+- [ ] 01-04-PLAN.md — Census loader + `python -m indexer.refresh` CLI + full-census integration proof (wave 3)
 
 ### Phase 2: Scoring Engine
 **Goal**: Every indexed agent gets a deterministic, explainable, neutrally-worded 0–100 TrustScore with A–F grade — pure functions with no I/O and no wall clock
@@ -82,7 +88,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Data Indexer | 0/TBD | Not started | - |
+| 1. Foundation & Data Indexer | 0/4 | Planned | - |
 | 2. Scoring Engine | 0/TBD | Not started | - |
 | 3. MCP Server & Leaderboard | 0/TBD | Not started | - |
 | 4. x402 Payment Layer | 0/TBD | Not started | - |
@@ -90,3 +96,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 ---
 *Roadmap created: 2026-07-10 — 5 phases (coarse granularity), 25/25 v1 requirements mapped*
+*Phase 1 planned: 2026-07-10 — 4 plans across 3 waves (02 and 03 parallel)*

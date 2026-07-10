@@ -548,15 +548,17 @@ with open(csv_path, newline="", encoding="utf-8-sig") as f:   # both locked
 
 Everything else in this document is `[VERIFIED]` by direct execution or `[CITED]` from project research verified 2026-07-10.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **9 buckets (recommended) vs strict 8 (fold Creative & Media into Other Services)?**
    - What we know: CONTEXT says "roughly" the 8 named buckets, exact names are discretion; the creative cluster is real (15 agents) and price-coherent
    - What's unclear: whether "roughly" stretches to adding one bucket
    - Recommendation: ship 9; it's a one-section table edit to fold back, and the distribution for both variants is documented above
+   - **RESOLVED: 9-bucket table (orchestrator decision, pinned in 01-02-PLAN.md Task 2 distribution test)**
 
 2. **Rating rule variant for the 4 paragraph-positive rows** (rule A: 90 rated, keeps FundingArb 5.0 with pct NULL — recommended; rule B: 89 rated, positive-%-pattern-only)
    - Both satisfy the locked constraint; planner should pick one and pin it in a fixture test
+   - **RESOLVED: rule A (orchestrator decision, pinned in 01-01-PLAN.md fixtures incl. FundingArb `(5.0, None)`)**
 
 3. **Snapshot duplication on rerun** — resolved by locked "always append": two bare runs yield 544 snapshot rows with identical captured_at. Not a defect; the integration test should assert this exact behavior so nobody "fixes" it later.
 
