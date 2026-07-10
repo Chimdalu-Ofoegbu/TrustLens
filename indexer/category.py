@@ -8,6 +8,10 @@ derived from listing text" (surfaces on the Phase 3 methodology page).
 
 Matching semantics:
 - the two entries in REGEX_KEYWORDS compile verbatim as regex
+- the two entries in SUBSTRING_KEYWORDS match as substrings: their only
+  census occurrences are the plurals "cafes"/"restaurants" (row 3509,
+  Crypto Shop Near Me), which the verified distribution counts in
+  Lifestyle & Health and word-bounded singular matching would miss
 - keywords containing a space or any non-ASCII char match as substrings
 - single ASCII tokens match word-bounded (\\b...\\b)
 - matched against: unicodedata.normalize("NFKC", f"{name} {tagline}").casefold()
@@ -24,6 +28,14 @@ import unicodedata
 REGEX_KEYWORDS = {
     r"(?<!not )astrolog",
     r"\btrading\b(?!\s+(volume|agents)\b)",
+}
+
+# Mechanics override (NOT table content): these existing table keywords match
+# as substrings so their plural census occurrences are caught. Verified: only
+# row 3509 contains either string, so this affects exactly one row.
+SUBSTRING_KEYWORDS = {
+    "cafe",
+    "restaurant",
 }
 
 ORDERED_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
@@ -104,8 +116,8 @@ CATEGORIES: tuple[str, ...] = tuple(name for name, _ in ORDERED_RULES) + (FALLBA
 def _compile(kw: str) -> re.Pattern[str]:
     if kw in REGEX_KEYWORDS:
         return re.compile(kw)                        # vetted regex, verbatim
-    if " " in kw or any(ord(c) > 127 for c in kw):
-        return re.compile(re.escape(kw))             # phrase / CJK: substring
+    if kw in SUBSTRING_KEYWORDS or " " in kw or any(ord(c) > 127 for c in kw):
+        return re.compile(re.escape(kw))             # phrase / CJK / override: substring
     return re.compile(r"\b" + re.escape(kw) + r"\b") # single ASCII token: word-bounded
 
 
