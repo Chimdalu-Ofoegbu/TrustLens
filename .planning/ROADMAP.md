@@ -31,7 +31,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 4 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Scaffold (pyproject with pinned deps, pytest tooling) + verified pure field parsers (wave 1)
+- [x] 01-01-PLAN.md — Scaffold (pyproject with pinned deps, pytest tooling) + verified pure field parsers (wave 1)
 - [ ] 01-02-PLAN.md — Deterministic 9-bucket category derivation + full-census distribution pin (wave 2)
 - [ ] 01-03-PLAN.md — SQLite persistence: locked DDL, WAL, idempotent upsert, snapshot append (wave 2)
 - [ ] 01-04-PLAN.md — Census loader + `python -m indexer.refresh` CLI + full-census integration proof (wave 3)

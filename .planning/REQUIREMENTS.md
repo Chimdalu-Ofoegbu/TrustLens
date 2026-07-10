@@ -10,7 +10,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Indexer & Data
 
 - [ ] **INDX-01**: `python -m indexer.refresh` populates SQLite from the census CSV with zero network access
-- [ ] **INDX-02**: Parser handles census edge cases: K-suffixed sold counts ("1.55K sold"), subscript-zero USDT prices ("0.0₄15 USDT"), missing ratings (price-like value in rating column with empty positive %), multiline quoted taglines, CJK agent names
+- [x] **INDX-02**: Parser handles census edge cases: K-suffixed sold counts ("1.55K sold"), subscript-zero USDT prices ("0.0₄15 USDT"), missing ratings (price-like value in rating column with empty positive %), multiline quoted taglines, CJK agent names
 - [ ] **INDX-03**: SQLite persists `agents` (id, name, category, price, sold, rating, positive_pct, tagline, first_seen, last_seen) and `snapshots` (time series per refresh)
 - [ ] **INDX-04**: Polite scraper for okx.ai listing + agent detail pages: ≤1 req/sec, User-Agent `TrustLens/1.0`, on-disk response cache, graceful degradation to census CSV when blocked or markup changes
 
@@ -85,7 +85,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | INDX-01 | Phase 1 | Pending |
-| INDX-02 | Phase 1 | Pending |
+| INDX-02 | Phase 1 | Complete |
 | INDX-03 | Phase 1 | Pending |
 | INDX-04 | Phase 5 | Pending |
 | SCOR-01 | Phase 2 | Pending |
