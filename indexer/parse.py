@@ -28,7 +28,10 @@ def parse_sold(cell: str) -> int | None:
     m = _SOLD.fullmatch(s)
     if not m:
         return None
-    n = float(m.group(1).replace(",", ""))
+    try:
+        n = float(m.group(1).replace(",", ""))
+    except ValueError:  # digitless comma-only group, e.g. ", sold" -> float("")
+        return None     # caller stores 0 and warns — parsers never raise
     mult = {"K": 1_000, "M": 1_000_000}.get((m.group(2) or "").upper(), 1)
     return int(round(n * mult))
 

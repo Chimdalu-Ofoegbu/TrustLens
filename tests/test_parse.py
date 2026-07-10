@@ -53,6 +53,14 @@ def test_parse_sold_whitespace_only_is_zero():
     assert parse_sold("   ") == 0
 
 
+def test_parse_sold_comma_only_group_returns_none():
+    # WR-01 regression: '[\d,]+' also matches a digitless comma group, so
+    # ', sold' used to reach float('') and raise ValueError. Parsers never
+    # raise — the guard returns None (caller stores 0 and warns).
+    assert parse_sold(", sold") is None
+    assert parse_sold(",,, sold") is None
+
+
 def test_parse_sold_prose_returns_none():
     # id 4137: the sold cell holds a 417-char English paragraph.
     # fullmatch fails -> None; the caller stores 0 and logs a warning.
