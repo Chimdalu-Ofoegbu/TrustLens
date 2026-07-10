@@ -45,7 +45,11 @@ Plans:
   2. All five components (sales volume & velocity, review-count-vs-sales ratio, rating credibility, price-vs-category percentile, listing age/consistency) each return a factual `reason` string; thin data (e.g. 5.0 rating with <5 sales) produces a flagged low-confidence result, never an accusation or a crash
   3. A banned-word test passes over all scoring output: no "fraud", "scam", "fake", "manipulat" anywhere — only neutral wording ("pattern consistent with…", "insufficient data")
   4. `pytest --cov=scoring --cov-fail-under=90` passes, including edge cases: 0 sales, missing rating, "1.55K"-sold parsing
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Scoring core: pure component/engine functions, golden + banned-vocab tests, ≥90% coverage gate (wave 1)
+- [ ] 02-02-PLAN.md — Persistence: scores DDL, compute_all, refresh wiring + end-to-end determinism proof (wave 2)
 
 ### Phase 3: MCP Server & Leaderboard
 **Goal**: Anyone can call all 4 trust tools over MCP and browse the ranked leaderboard — free and ungated — from a single dockerized port
@@ -89,7 +93,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Data Indexer | 4/4 | Complete    | 2026-07-10 |
-| 2. Scoring Engine | 0/TBD | Not started | - |
+| 2. Scoring Engine | 0/2 | Planned | - |
 | 3. MCP Server & Leaderboard | 0/TBD | Not started | - |
 | 4. x402 Payment Layer | 0/TBD | Not started | - |
 | 5. Scraper, Hardening & Submission Kit | 0/TBD | Not started | - |
@@ -97,3 +101,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 ---
 *Roadmap created: 2026-07-10 — 5 phases (coarse granularity), 25/25 v1 requirements mapped*
 *Phase 1 planned: 2026-07-10 — 4 plans across 3 waves (02 and 03 parallel)*
+*Phase 2 planned: 2026-07-11 — 2 plans across 2 waves (sequential: coverage-gate and refresh-wiring ordering constraints)*

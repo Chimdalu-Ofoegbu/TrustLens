@@ -587,11 +587,14 @@ for row in rows:
 
 All other claims in this document are `[VERIFIED]` by execution against the real database or the real test suite in this session.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Reason-template final wording polish** — discretion area; the dry-run wording is functional but e.g. "positive-review share not shown on the listing" can be improved. Recommendation: planner freezes templates in components.py; the banned-vocab + golden tests then pin them.
+   - **RESOLVED: templates frozen verbatim in 02-01-PLAN.md Task 1; banned-vocab + golden tests pin them (orchestrator decision)**
 2. **`--generated-at` CLI flag on refresh** — recommended (default `captured_at` keeps determinism) but optional; scores are correct either way. Decide in planning.
+   - **RESOLVED: flag added in 02-02-PLAN.md Task 2 with captured_at default (orchestrator decision)**
 3. **RefreshSummary extension vs separate log line** — both verified safe; recommend the minimal separate INFO line, leaving the frozen dataclass untouched.
+   - **RESOLVED: RefreshSummary untouched; separate INFO line (orchestrator decision, regression-guard test in 02-02)**
 
 ## Environment Availability
 
