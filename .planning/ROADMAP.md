@@ -12,7 +12,7 @@ TrustLens goes from a 272-agent census CSV to a live, paid A2MCP trust-score ser
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation & Data Indexer** - Census CSV parsed edge-case-safe into SQLite on a pinned scaffold; category source resolved
+- [x] **Phase 1: Foundation & Data Indexer** - Census CSV parsed edge-case-safe into SQLite on a pinned scaffold; category source resolved (completed 2026-07-10)
 - [ ] **Phase 2: Scoring Engine** - Deterministic 0–100 TrustScore + A–F grade with neutral per-component reasons, ≥90% coverage on scoring/
 - [ ] **Phase 3: MCP Server & Leaderboard** - 4 MCP tools + static leaderboard + /healthz served free from one dockerized port
 - [ ] **Phase 4: x402 Payment Layer** - x402 v2 402-challenge gate with pluggable mock verifier; OKX pre-registration check passes locally
@@ -88,7 +88,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Data Indexer | 3/4 | In Progress|  |
+| 1. Foundation & Data Indexer | 4/4 | Complete    | 2026-07-10 |
 | 2. Scoring Engine | 0/TBD | Not started | - |
 | 3. MCP Server & Leaderboard | 0/TBD | Not started | - |
 | 4. x402 Payment Layer | 0/TBD | Not started | - |

@@ -109,6 +109,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SUBM-01 | Phase 5 | Pending |
 | SUBM-02 | Phase 5 | Pending |
 | SUBM-03 | Phase 5 | Pending |
+| PAYX-04 | v2 (not in roadmap) | Deferred |
+| INDX-05 | v2 (not in roadmap) | Deferred |
 
 **Coverage:**
 - v1 requirements: 25 total (count corrected from 24 during roadmap mapping — MCP Server section contains 5 IDs)
