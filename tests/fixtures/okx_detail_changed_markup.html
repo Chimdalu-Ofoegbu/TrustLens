@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>这个能吃吗？ | OKX.AI</title>
+</head>
+<body>
+  <div id="root">
+    <h1>这个能吃吗？</h1>
+  </div>
+  <!--
+    Changed-markup degradation fixture: the success doc with the script id
+    renamed from "appState" to "appStateXYZ", so find(id="appState") misses.
+    parse_appstate must return None + one WARNING even though the JSON is intact.
+  -->
+  <script data-id="__app_data_for_ssr__" type="application/json" id="appStateXYZ">{"appContext":{"initialProps":{"AgentDetailPage":{"overview":{"agentId":"3345","name":"这个能吃吗？","score":"5.0","approvalRate":"100%","usageCount":539,"serviceLowestFee":"0.01","categories":["LIFESTYLE"],"description":"a real listing tagline"}}}},"isSSR":true}</script>
+</body>
+</html>

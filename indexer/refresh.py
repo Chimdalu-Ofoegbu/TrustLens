@@ -40,6 +40,7 @@ __all__ = [
     "DEFAULT_WEB_OUT",
     "RefreshSummary",
     "persist",
+    "merge",
     "refresh",
     "main",
 ]
@@ -74,6 +75,22 @@ def persist(
     for rec in records:
         upsert_agent(conn, rec, captured_at)
         insert_snapshot(conn, rec, captured_at, source)
+
+
+def merge(
+    census: list[AgentRecord], scraped: list[AgentRecord]
+) -> list[AgentRecord]:
+    """Census is the floor; a scraped record wins only for an id it parsed.
+
+    Ids present only in the census stand unchanged; the (bounded, possibly
+    empty) scraped list overrides matching ids and appends any new ones. When
+    the scraper yields nothing (every failure path -> []), the census records
+    flow through byte-identically — the offline-determinism guarantee.
+    """
+    by_id = {r.id: r for r in census}
+    for s in scraped:
+        by_id[s.id] = s
+    return list(by_id.values())
 
 
 def _persist_records(
@@ -176,6 +193,11 @@ def main(argv: list[str] | None = None) -> int:
         "--web-out", type=Path, default=DEFAULT_WEB_OUT,
         help=f"leaderboard html output path (default: {DEFAULT_WEB_OUT})",
     )
+    parser.add_argument(
+        "--scrape", action="store_true",
+        help="also enrich from okx.ai detail pages (bounded demo set; politely, "
+        "cached; falls back to census on any failure)",
+    )
     args = parser.parse_args(argv)
 
     csv_path: Path = args.csv
@@ -205,6 +227,16 @@ def main(argv: list[str] | None = None) -> int:
     except (OSError, UnicodeDecodeError, csv.Error) as exc:
         log.error("failed to read census csv %s: %s", csv_path, exc)
         return 1
+
+    if args.scrape:
+        # Import locally so the default (offline) path never loads the scraper.
+        # scrape_agents swallows every failure and returns [] -> no try/except
+        # needed here and the 0/1/2 exit contract stays driven by csv/db only.
+        from indexer.scraper import DEMO_AGENT_IDS, detail_url, scrape_agents
+
+        scraped = scrape_agents([detail_url(i) for i in DEMO_AGENT_IDS])
+        records = merge(records, scraped)
+        log.info("scrape enrichment: %d record(s) merged", len(scraped))
 
     try:
         summary = _persist_records(
