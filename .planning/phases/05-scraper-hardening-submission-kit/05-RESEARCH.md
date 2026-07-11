@@ -536,22 +536,25 @@ Extend the existing banned-vocabulary test to scan `submission/*.md` for `fraud|
 
 **Note:** No `[ASSUMED]`-tagged claims about okx.ai's *scrapeability* remain — that was the whole point of the probe, and it is now `[VERIFIED: live probe]`. The assumptions above are forward-looking (stability) or human-owned (registration), not present-state facts.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Full-marketplace enrichment scope**
    - What we know: listing is 20/page × ~16 pages (`total: 305`); detail pages are 272 in census. At 1 req/s, either full crawl is ~5 min.
    - What's unclear: whether the timebox wants ANY live enrichment beyond proving the path, or just the graceful-fallback + fixtures (the designed deliverable).
    - Recommendation: scrape a SMALL bounded demo set (e.g. 3–5 detail pages, or none — fixtures suffice) to prove the path; defer full enrichment to v2 (INDX-05). The plan should make the sample size a constant.
+   - **RESOLVED: bounded/gated `--scrape` path proves the mechanism; canned fixtures are the tested deliverable; full enrichment deferred to v2/INDX-05 (orchestrator decision, implemented in 05-01)**
 
 2. **Category enrichment: Option A (map) vs Option B (display-only)**
    - What we know: 6-code okx.ai set vs 9-bucket derived set, zero overlap; scoring refuses non-canonical category text; Phase 2 percentiles depend on the derived distribution.
    - What's unclear: whether the user wants the real listed category surfaced at all.
    - Recommendation: **Option B** — enrich `sold`/`rating`/`price`/`positive_pct` (which match census semantics and feed scoring), leave `category` derived. Lowest risk, honors the neutral-language contract, still delivers freshness. Keep `category_source='listed'` as a documented-but-unused v2 seam.
+   - **RESOLVED: Option B (orchestrator decision, locked in 05-01 — category stays derived; per-record scrape source-tagging also left as a documented v2/INDX-05 seam to preserve the determinism contract)**
 
 3. **Docker rehearsal for the demo**
    - What we know: `docker compose up` self-seeds and serves everything on one port; the demo script must run against it. The Docker Desktop engine did not start in the Phase 3/4 build env.
    - What's unclear: whether the engine is available on the human's machine for the demo rehearsal.
    - Recommendation: the final human checklist includes "start Docker Desktop, `docker compose up`, rehearse the demo path" — the same carried item from Phase 3 HUMAN-UAT and Phase 4 VERIFICATION.
+   - **RESOLVED: routed to the final human checklist; the plan produces an executable script but does not fake the run (orchestrator decision, locked in 05-03)**
 
 ## Environment Availability
 

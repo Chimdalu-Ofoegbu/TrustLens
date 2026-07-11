@@ -94,7 +94,12 @@ Plans:
   2. Full pytest suite passes: scoring functions, MCP tool schemas, and one end-to-end call against a local server with x402 mocked
   3. README covers local run, deploy steps (HTTPS-capable host; HK/Singapore suggestion), MCP Inspector test instructions, the exact OKX ASP registration prompts with remaining manual steps, the pre-registration curl check, and the mock→SDK swap
   4. `submission/` contains demo-script.md (90-second storyboard: problem → live MCP call → score card with anomaly flag → agent-calling-agent flow → leaderboard + on-chain revenue), x-post-draft.md (#OKXAI), and listing-copy.md (name, tagline ≤80 chars, description, category Software Services, 0.01 USDT) — and the demo script has been executed once end-to-end against a clean-clone `docker compose up`
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Polite okx.ai scraper (appState JSON, --scrape flag, graceful fallback) + canned-response test suite + STRIDE threat model (wave 1)
+- [ ] 05-02-PLAN.md — README.md (OPS-02): verified local/Docker/Inspector/curl commands + verbatim OKX ASP prompts + marked human-only steps (wave 1)
+- [ ] 05-03-PLAN.md — Submission kit (demo-script, x-post, listing-copy) + banned-vocab language gate over submission/ + README with ≤80-char tagline check (wave 2)
 
 ## Progress
 
@@ -107,7 +112,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Scoring Engine | 2/2 | Complete    | 2026-07-11 |
 | 3. MCP Server & Leaderboard | 5/5 | Complete    | 2026-07-11 |
 | 4. x402 Payment Layer | 2/2 | Complete    | 2026-07-11 |
-| 5. Scraper, Hardening & Submission Kit | 0/TBD | Not started | - |
+| 5. Scraper, Hardening & Submission Kit | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-07-10 — 5 phases (coarse granularity), 25/25 v1 requirements mapped*
@@ -115,3 +120,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 *Phase 2 planned: 2026-07-11 — 2 plans across 2 waves (sequential: coverage-gate and refresh-wiring ordering constraints)*
 *Phase 3 planned: 2026-07-11 — 5 plans across 3 waves (01∥02, then 03∥04, then 05); requirements MCPS-01..05, WEB-01..03, OPS-01 all mapped*
 *Phase 4 planned: 2026-07-11 — 2 plans across 2 waves (sequential: proof matrix pins the wired gate); PAYX-01..03 all mapped; PoC-verified research transcribed verbatim*
+*Phase 5 planned: 2026-07-11 — 3 plans across 2 waves (01 scraper ∥ 02 README, then 03 submission+language-gate depends on README); INDX-04, OPS-02, OPS-03, SUBM-01..03 all mapped; okx.ai scrapeability empirically verified (appState JSON, graceful-fallback deliverable)*
