@@ -100,9 +100,13 @@ def test_generated_at_override_stamps_generated_only(tmp_path):
 def test_persisted_grade_distribution(tmp_path):
     db = tmp_path / "grades.db"
     assert _run(db) == 0
-    dist = sqlite3.connect(db).execute(
-        "SELECT grade, COUNT(*) FROM scores GROUP BY grade ORDER BY grade"
-    ).fetchall()
+    conn = sqlite3.connect(db)
+    try:
+        dist = conn.execute(
+            "SELECT grade, COUNT(*) FROM scores GROUP BY grade ORDER BY grade"
+        ).fetchall()
+    finally:
+        conn.close()
     assert dist == EXPECTED_GRADE_ROWS
 
 

@@ -1,7 +1,9 @@
 """Refresh pipeline: census CSV -> SQLite. Entry point: python -m indexer.refresh
 
 Offline by design: the pipeline reads a local CSV and writes a local SQLite
-file with zero network access (INDX-01).
+file with zero network access (INDX-01). Each load also computes trust
+scores for every agent and persists them in the same atomic transaction as
+agents and snapshots (Phase 2 precompute-on-refresh).
 
 Determinism: captured_at is always injected. The CLI derives its default from
 the YYYY-MM-DD date in the csv filename (seed baseline 2026-07-10T00:00:00Z);
@@ -25,6 +27,7 @@ from pathlib import Path
 from indexer.census import load_census
 from indexer.db import connect, init_db, insert_snapshot, upsert_agent
 from indexer.models import AgentRecord
+from scoring import SCORE_VERSION, compute_all
 
 log = logging.getLogger("indexer.refresh")
 
@@ -67,19 +70,26 @@ def _persist_records(
     field_warnings: int,
     captured_at: str,
     source: str = "census",
+    generated_at: str | None = None,
 ) -> RefreshSummary:
     """DB stage of a refresh: open, init, persist atomically, summarize.
 
     Split from the CSV stage so main() can attribute a failure to its side
     of the pipeline unambiguously: csv-side -> exit 1, db-side -> exit 2.
     """
+    gen_at = captured_at if generated_at is None else generated_at
     conn = connect(db_path)
     try:
         init_db(conn)
         with conn:  # one atomic transaction for the whole load
             persist(conn, records, captured_at, source)
+            scored, not_rated = compute_all(conn, gen_at, captured_at)
     finally:
         conn.close()  # clean close also removes the WAL sidecar files
+    log.info(
+        "scores computed: %d scored, %d not rated, version=%s",
+        scored, not_rated, SCORE_VERSION,
+    )
     return RefreshSummary(
         agents=len(records),
         snapshots_appended=len(records),
@@ -93,10 +103,13 @@ def refresh(
     db_path: str | Path,
     captured_at: str,
     source: str = "census",
+    generated_at: str | None = None,
 ) -> RefreshSummary:
-    """Load the census and persist agents + snapshots in one atomic transaction."""
+    """Load the census; persist agents + snapshots + scores in one atomic transaction."""
     records, warnings = load_census(csv_path)
-    return _persist_records(db_path, records, warnings, captured_at, source)
+    return _persist_records(
+        db_path, records, warnings, captured_at, source, generated_at=generated_at
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -131,6 +144,11 @@ def main(argv: list[str] | None = None) -> int:
         help="ISO-8601 UTC timestamp for this load "
         "(default: derived from the YYYY-MM-DD date in the csv filename)",
     )
+    parser.add_argument(
+        "--generated-at", default=None,
+        help="ISO-8601 UTC timestamp stamped on score rows as generated_at "
+        "(default: same as captured-at, keeping reruns byte-identical)",
+    )
     args = parser.parse_args(argv)
 
     csv_path: Path = args.csv
@@ -162,7 +180,10 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     try:
-        summary = _persist_records(args.db, records, field_warnings, captured_at)
+        summary = _persist_records(
+            args.db, records, field_warnings, captured_at,
+            generated_at=args.generated_at,
+        )
     except (OSError, sqlite3.Error) as exc:
         log.error("database error at %s: %s", args.db, exc)
         return 2
