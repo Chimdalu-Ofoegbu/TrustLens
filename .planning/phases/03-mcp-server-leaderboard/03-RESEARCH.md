@@ -674,11 +674,14 @@ pytest async config: FastMCP already depends on `anyio`; simplest is to keep in-
 | A3 | OKX marketplace clients tolerate stateful sessions (initialize handshake) — same assumption Phase 4's FREE_METHODS design already makes | Wire Protocol | If OKX's runtime is stateless-only, flip to `stateless_http=True` (one line; methods become POST/DELETE; session tests change) |
 | A4 | The UI-SPEC (not yet generated) will fit the verified page skeleton (table + controls + methodology + badge sections) | Leaderboard | Visual-only rework; data/JS mechanics unaffected |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Exact default for `web_out` in `refresh()` signature** — tmp-param approach vs deriving from `--db` parent. Planner picks; both preserve determinism tests (Pitfall 7 shows the constraint).
+   - **RESOLVED: `web_out: Path | None = None` — None skips the build for library calls; CLI defaults `--web-out web/dist/index.html` and always builds (locked in 03-03-PLAN.md)**
 2. **`json_response=True` vs default SSE** — both fully verified incl. Inspector. Research recommends JSON mode (simpler tests, simpler Phase-4 curl semantics); if the planner keeps default SSE, use the `mcp_json()` helper everywhere. Not a blocker either way.
+   - **RESOLVED: `json_response=True` adopted (orchestrator decision, locked in 03-04-PLAN.md)**
 3. **Docker engine verification** — container run could not be executed (engine down). The files above are assembled from verified primitives (base image facts, compose version, refresh idempotency); first `docker compose up --build` happens in-phase with the executor after starting Docker Desktop.
+   - **RESOLVED: in-phase container run with 2-attempt engine start + honest DEFERRED reporting fallback (orchestrator decision, locked in 03-05-PLAN.md)**
 
 ## Security Domain
 

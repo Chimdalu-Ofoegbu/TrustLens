@@ -60,8 +60,15 @@ Plans:
   2. `score_agent("这个能吃吗？")` and `score_agent("3345")` both return a full JSON score card in <500ms from a warm DB
   3. The page at `/` ranks all indexed agents with TrustScore + grade badges, is sortable with a category filter, loads in <2s, includes an "About the methodology" section and a "TrustLens Verified" badge embed snippet, and regenerates from SQLite on indexer refresh
   4. `docker compose up` serves leaderboard (`/`), the MCP endpoint, and `/healthz` on one port
-**Plans**: TBD
+**Plans**: 5 plans
 **UI hint**: yes
+
+Plans:
+- [ ] 03-01-PLAN.md — Leaderboard page builder + shared badge SVG generator per approved UI-SPEC (wave 1)
+- [ ] 03-02-PLAN.md — MCP server core: read-only DB layer + exactly 4 tools with TypedDict structured output (wave 1)
+- [ ] 03-03-PLAN.md — Refresh wiring: page auto-regenerates on `indexer.refresh`, packaging + gitignore (wave 2)
+- [ ] 03-04-PLAN.md — One-port app composition: McpPathRewrite mount fix, /healthz, badge route, e2e + <500ms proof (wave 2)
+- [ ] 03-05-PLAN.md — Docker packaging + Inspector CLI runtime proof + full-suite phase gate (wave 3)
 
 ### Phase 4: x402 Payment Layer
 **Goal**: Paid tool calls are gated by the x402 v2 standard with a pluggable verifier — the OKX pre-registration check passes against local Docker before any human registers
@@ -94,7 +101,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Foundation & Data Indexer | 4/4 | Complete    | 2026-07-10 |
 | 2. Scoring Engine | 2/2 | Complete    | 2026-07-11 |
-| 3. MCP Server & Leaderboard | 0/TBD | Not started | - |
+| 3. MCP Server & Leaderboard | 0/5 | Planned | - |
 | 4. x402 Payment Layer | 0/TBD | Not started | - |
 | 5. Scraper, Hardening & Submission Kit | 0/TBD | Not started | - |
 
@@ -102,3 +109,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 *Roadmap created: 2026-07-10 — 5 phases (coarse granularity), 25/25 v1 requirements mapped*
 *Phase 1 planned: 2026-07-10 — 4 plans across 3 waves (02 and 03 parallel)*
 *Phase 2 planned: 2026-07-11 — 2 plans across 2 waves (sequential: coverage-gate and refresh-wiring ordering constraints)*
+*Phase 3 planned: 2026-07-11 — 5 plans across 3 waves (01∥02, then 03∥04, then 05); requirements MCPS-01..05, WEB-01..03, OPS-01 all mapped*
