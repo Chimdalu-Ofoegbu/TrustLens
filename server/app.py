@@ -18,7 +18,9 @@ from web.badge import badge_svg
 
 log = logging.getLogger("server.app")
 
-_AGENT_ID = re.compile(r"^[A-Za-z0-9_-]{1,32}$")  # defense-in-depth; real ids are digits
+# defense-in-depth; real ids are digits. \Z (not $): $ also matches before a
+# trailing \n, so "3345\n" would pass and reach the query (WR-01 / T-03-13).
+_AGENT_ID = re.compile(r"[A-Za-z0-9_-]{1,32}\Z")
 DEFAULT_STATIC = Path("web/dist")
 
 # Fixed 503 body (MCPS-03): same locked field set as the 200 shape, no
@@ -126,7 +128,7 @@ def create_app(
         A DB failure also degrades to the neutral badge — embeds must render.
         """
         svg = badge_svg(None, None)  # neutral "N/A" not-found badge
-        if _AGENT_ID.match(agent_id):
+        if _AGENT_ID.fullmatch(agent_id):
             try:
                 conn = connect_ro(db_path)
                 try:

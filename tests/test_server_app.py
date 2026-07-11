@@ -270,6 +270,30 @@ def test_badge_route(client, real_db):
     assert r.status_code == 200 and ">NR<" in r.text
 
 
+# 7b. WR-01 regression: a trailing-newline id (%0A) must fail the \Z-anchored
+#     allowlist BEFORE any DB touch (T-03-13). With the old `$` anchor,
+#     "3345\n" matched and the newline-bearing string reached the query.
+def test_badge_newline_id_rejected_before_query(client, monkeypatch):
+    calls = []
+
+    def spy(path):
+        calls.append(path)
+        return connect_ro(path)
+
+    monkeypatch.setattr("server.app.connect_ro", spy)
+
+    r = client.get("/badge/3345%0A.svg", follow_redirects=False)
+    assert r.status_code == 200  # neutral badge, never 404 for embeds
+    assert "N/A" in r.text and "A 94" not in r.text  # NOT agent 3345's badge
+    assert calls == []  # allowlist rejected the id before any query ran
+
+    # Positive control: a valid id goes through the spy exactly once,
+    # proving the interception is live (the [] above is not vacuous).
+    r = client.get("/badge/3345.svg")
+    assert r.status_code == 200 and "A 94" in r.text
+    assert len(calls) == 1
+
+
 # 8. Static integrity: the real page serves whole; misses pass through as 404.
 def test_static_integrity(client):
     r = client.get("/")
