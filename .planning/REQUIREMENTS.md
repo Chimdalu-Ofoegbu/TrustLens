@@ -31,9 +31,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### x402 Payments
 
-- [ ] **PAYX-01**: Call without payment returns HTTP 402 with x402 v2 payment-requirements JSON (scheme `exact`, network `eip155:196`, `payTo`, atomic `amount`) and the `PAYMENT-REQUIRED` header
-- [ ] **PAYX-02**: With `X402_MOCK=1`, a mock-paid call returns the scored result; verification is a pluggable interface so the OKX Payment SDK (`okxweb3-app-x402`) can drop in at deploy time
-- [ ] **PAYX-03**: Payment config via environment variables only (`TRUSTLENS_PAY_TO`, `TRUSTLENS_PRICE_USDT`, `X_LAYER_RPC`, `X402_MOCK`); no hardcoded keys/addresses; `.env` gitignored; `.env.example` documents every var with placeholders
+- [x] **PAYX-01**: Call without payment returns HTTP 402 with x402 v2 payment-requirements JSON (scheme `exact`, network `eip155:196`, `payTo`, atomic `amount`) and the `PAYMENT-REQUIRED` header
+- [x] **PAYX-02**: With `X402_MOCK=1`, a mock-paid call returns the scored result; verification is a pluggable interface so the OKX Payment SDK (`okxweb3-app-x402`) can drop in at deploy time
+- [x] **PAYX-03**: Payment config via environment variables only (`TRUSTLENS_PAY_TO`, `TRUSTLENS_PRICE_USDT`, `X_LAYER_RPC`, `X402_MOCK`); no hardcoded keys/addresses; `.env` gitignored; `.env.example` documents every var with placeholders
 
 ### Leaderboard Site
 
@@ -97,9 +97,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MCPS-03 | Phase 3 | Complete |
 | MCPS-04 | Phase 3 | Complete |
 | MCPS-05 | Phase 3 | Complete |
-| PAYX-01 | Phase 4 | Pending |
-| PAYX-02 | Phase 4 | Pending |
-| PAYX-03 | Phase 4 | Pending |
+| PAYX-01 | Phase 4 | Complete |
+| PAYX-02 | Phase 4 | Complete |
+| PAYX-03 | Phase 4 | Complete |
 | WEB-01 | Phase 3 | Complete |
 | WEB-02 | Phase 3 | Complete |
 | WEB-03 | Phase 3 | Complete |

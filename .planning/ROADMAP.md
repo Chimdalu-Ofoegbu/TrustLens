@@ -82,7 +82,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Payment module transcribed from the proven PoC + gate wiring into create_app + .env.example + Phase 3 e2e migration (wave 1)
+- [x] 04-01-PLAN.md — Payment module transcribed from the proven PoC + gate wiring into create_app + .env.example + Phase 3 e2e migration (wave 1)
 - [ ] 04-02-PLAN.md — Proof matrix: unit tests (conversion/config/verifier seam) + wire/threat tests + mock-paid e2e (wave 2)
 
 ### Phase 5: Scraper, Hardening & Submission Kit
@@ -106,7 +106,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Foundation & Data Indexer | 4/4 | Complete    | 2026-07-10 |
 | 2. Scoring Engine | 2/2 | Complete    | 2026-07-11 |
 | 3. MCP Server & Leaderboard | 5/5 | Complete    | 2026-07-11 |
-| 4. x402 Payment Layer | 0/2 | Not started | - |
+| 4. x402 Payment Layer | 1/2 | In Progress | - |
 | 5. Scraper, Hardening & Submission Kit | 0/TBD | Not started | - |
 
 ---
