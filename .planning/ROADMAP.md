@@ -65,7 +65,7 @@ Plans:
 
 Plans:
 - [x] 03-01-PLAN.md — Leaderboard page builder + shared badge SVG generator per approved UI-SPEC (wave 1)
-- [ ] 03-02-PLAN.md — MCP server core: read-only DB layer + exactly 4 tools with TypedDict structured output (wave 1)
+- [x] 03-02-PLAN.md — MCP server core: read-only DB layer + exactly 4 tools with TypedDict structured output (wave 1)
 - [ ] 03-03-PLAN.md — Refresh wiring: page auto-regenerates on `indexer.refresh`, packaging + gitignore (wave 2)
 - [ ] 03-04-PLAN.md — One-port app composition: McpPathRewrite mount fix, /healthz, badge route, e2e + <500ms proof (wave 2)
 - [ ] 03-05-PLAN.md — Docker packaging + Inspector CLI runtime proof + full-suite phase gate (wave 3)
@@ -101,7 +101,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Foundation & Data Indexer | 4/4 | Complete    | 2026-07-10 |
 | 2. Scoring Engine | 2/2 | Complete    | 2026-07-11 |
-| 3. MCP Server & Leaderboard | 1/5 | In Progress|  |
+| 3. MCP Server & Leaderboard | 2/5 | In Progress|  |
 | 4. x402 Payment Layer | 0/TBD | Not started | - |
 | 5. Scraper, Hardening & Submission Kit | 0/TBD | Not started | - |
 
