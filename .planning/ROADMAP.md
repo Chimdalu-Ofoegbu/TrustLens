@@ -48,7 +48,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Scoring core: pure component/engine functions, golden + banned-vocab tests, ≥90% coverage gate (wave 1)
+- [x] 02-01-PLAN.md — Scoring core: pure component/engine functions, golden + banned-vocab tests, ≥90% coverage gate (wave 1)
 - [ ] 02-02-PLAN.md — Persistence: scores DDL, compute_all, refresh wiring + end-to-end determinism proof (wave 2)
 
 ### Phase 3: MCP Server & Leaderboard

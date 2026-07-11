@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 01-04-PLAN.md
-last_updated: "2026-07-10T22:56:07.206Z"
-last_activity: 2026-07-10
+status: executing
+stopped_at: Completed 02-01-PLAN.md
+last_updated: "2026-07-11T00:14:53.739Z"
+last_activity: 2026-07-11
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
-  percent: 100
+  total_plans: 6
+  completed_plans: 5
+  percent: 83
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-10)
 
 **Core value:** Any human or agent can get a deterministic, evidence-based answer to "should I hire this OKX.AI agent?" in one paid MCP call.
-**Current focus:** Phase 1 — Foundation & Data Indexer
+**Current focus:** Phase 2 — Scoring Engine
 
 ## Current Position
 
 Phase: 2 of 5 (scoring engine)
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-07-10
+Plan: 1 of 2 complete
+Status: In progress — 02-02 (persistence + refresh wiring) next
+Last activity: 2026-07-11
 
 Progress: [██████████] 100%
 
@@ -56,6 +56,7 @@ Progress: [██████████] 100%
 | Phase 01-foundation-data-indexer P02 | 15 min | 2 tasks | 2 files |
 | Phase 01-foundation-data-indexer P03 | 7 min | 2 tasks | 2 files |
 | Phase 01-foundation-data-indexer P04 | 10 min | 2 tasks | 4 files |
+| Phase 02-scoring-engine P01 | 17 min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -70,6 +71,7 @@ Recent decisions affecting current work:
 - [Pre-build]: Pin `fastmcp>=3,<4` — FastMCP is 3.x; v2-era tutorials and constructor kwargs are wrong
 - [Phase 01-02]: Substring-match override for cafe/restaurant keywords (mechanics-level SUBSTRING_KEYWORDS set; locked table untouched) — Census row 3509 carries only plural forms cafes/restaurants; word-bounded singular matching missed both and broke the research-verified distribution. Census scan proved only row 3509 contains either string.
 - [Phase 01-03]: Lowercase 'unique' wording in db.py schema comments — the plan's grep gate (no uppercase UNIQUE literal, proving no unique constraint on name_key) outranked its suggested comment phrasing; Phase 2 must keep the scores-table DDL free of the literal too
+- [Phase 02-01]: scoring/ public surface frozen at SCORE_VERSION 1.0.0 with goldens + grade/confidence distributions pinned over the real 272-agent census — any formula/weight/band/template change now fails golden tests and requires a SCORE_VERSION bump plus re-pin (research-locked policy)
 
 ### Pending Todos
 
@@ -77,7 +79,6 @@ None yet.
 
 ### Blockers/Concerns
 
-- [Phase 1]: Census CSV has NO category column, but `category_leaderboard` and the price-vs-category component require one — resolve source (detail-page scrape vs deterministic buckets, method disclosed on methodology page) before scoring is finalized
 - [Phase 4]: Verify `PAYMENT-REQUIRED` header encoding (base64 vs raw JSON) against OKX docs at build time; keep encoding a one-line switch and `FREE_METHODS` configurable
 - [Deadline]: Submit for review July 10–11; up to 24h external review; live before July 17 23:59 UTC — deploy/registration/posting are human-only steps, so materials must be finished at least a day early
 
@@ -92,6 +93,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-07-10T22:28:05.454Z
-Stopped at: Completed 01-04-PLAN.md
+Last session: 2026-07-11T00:12:01.647Z
+Stopped at: Completed 02-01-PLAN.md
 Resume file: None

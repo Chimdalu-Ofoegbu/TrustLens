@@ -16,10 +16,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Scoring Engine
 
-- [ ] **SCOR-01**: Pure, deterministic scoring functions produce 0–100 TrustScore + A–F grade + component breakdown for any agent row
-- [ ] **SCOR-02**: Components implemented: sales volume & velocity, review-count-vs-sales ratio, rating credibility (5.0 with <5 sales = low confidence, flagged not accused), price-vs-category percentile, listing age/consistency — every component returns a `reason` string
-- [ ] **SCOR-03**: All scoring/output wording is neutral and factual ("pattern consistent with…", "insufficient data") — never accusatory ("fraud", "scam", "fake")
-- [ ] **SCOR-04**: pytest coverage ≥90% on `scoring/`, including edge cases: 0 sales, missing rating, "1.55K"-sold parsing
+- [x] **SCOR-01**: Pure, deterministic scoring functions produce 0–100 TrustScore + A–F grade + component breakdown for any agent row
+- [x] **SCOR-02**: Components implemented: sales volume & velocity, review-count-vs-sales ratio, rating credibility (5.0 with <5 sales = low confidence, flagged not accused), price-vs-category percentile, listing age/consistency — every component returns a `reason` string
+- [x] **SCOR-03**: All scoring/output wording is neutral and factual ("pattern consistent with…", "insufficient data") — never accusatory ("fraud", "scam", "fake")
+- [x] **SCOR-04**: pytest coverage ≥90% on `scoring/`, including edge cases: 0 sales, missing rating, "1.55K"-sold parsing
 
 ### MCP Server
 
@@ -88,10 +88,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INDX-02 | Phase 1 | Complete |
 | INDX-03 | Phase 1 | Complete |
 | INDX-04 | Phase 5 | Pending |
-| SCOR-01 | Phase 2 | Pending |
-| SCOR-02 | Phase 2 | Pending |
-| SCOR-03 | Phase 2 | Pending |
-| SCOR-04 | Phase 2 | Pending |
+| SCOR-01 | Phase 2 | Complete |
+| SCOR-02 | Phase 2 | Complete |
+| SCOR-03 | Phase 2 | Complete |
+| SCOR-04 | Phase 2 | Complete |
 | MCPS-01 | Phase 3 | Pending |
 | MCPS-02 | Phase 3 | Pending |
 | MCPS-03 | Phase 3 | Pending |
