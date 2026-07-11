@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation & Data Indexer** - Census CSV parsed edge-case-safe into SQLite on a pinned scaffold; category source resolved (completed 2026-07-10)
 - [x] **Phase 2: Scoring Engine** - Deterministic 0–100 TrustScore + A–F grade with neutral per-component reasons, ≥90% coverage on scoring/ (completed 2026-07-11)
-- [ ] **Phase 3: MCP Server & Leaderboard** - 4 MCP tools + static leaderboard + /healthz served free from one dockerized port
+- [x] **Phase 3: MCP Server & Leaderboard** - 4 MCP tools + static leaderboard + /healthz served free from one dockerized port (completed 2026-07-11)
 - [ ] **Phase 4: x402 Payment Layer** - x402 v2 402-challenge gate with pluggable mock verifier; OKX pre-registration check passes locally
 - [ ] **Phase 5: Scraper, Hardening & Submission Kit** - Timeboxed polite scraper, full test suite, complete README, rehearsed demo/listing materials
 
@@ -101,7 +101,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Foundation & Data Indexer | 4/4 | Complete    | 2026-07-10 |
 | 2. Scoring Engine | 2/2 | Complete    | 2026-07-11 |
-| 3. MCP Server & Leaderboard | 4/5 | In Progress|  |
+| 3. MCP Server & Leaderboard | 5/5 | Complete    | 2026-07-11 |
 | 4. x402 Payment Layer | 0/TBD | Not started | - |
 | 5. Scraper, Hardening & Submission Kit | 0/TBD | Not started | - |
 

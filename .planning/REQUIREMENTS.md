@@ -43,7 +43,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Ops & Tests
 
-- [ ] **OPS-01**: `docker compose up` serves everything (MCP + leaderboard + healthz) on one port (Dockerfile + docker-compose.yml)
+- [x] **OPS-01**: `docker compose up` serves everything (MCP + leaderboard + healthz) on one port (Dockerfile + docker-compose.yml)
 - [ ] **OPS-02**: README covers: local run, deploy steps (HTTPS-capable host; HK/Singapore suggestion), MCP Inspector test instructions, and the exact OKX ASP registration prompts with remaining manual steps
 - [ ] **OPS-03**: Full pytest suite passes: scoring functions, MCP tool schemas, and one end-to-end call against a local server with x402 mocked
 
@@ -103,7 +103,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | WEB-01 | Phase 3 | Complete |
 | WEB-02 | Phase 3 | Complete |
 | WEB-03 | Phase 3 | Complete |
-| OPS-01 | Phase 3 | Pending |
+| OPS-01 | Phase 3 | Complete |
 | OPS-02 | Phase 5 | Pending |
 | OPS-03 | Phase 5 | Pending |
 | SUBM-01 | Phase 5 | Pending |
