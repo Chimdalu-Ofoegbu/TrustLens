@@ -68,7 +68,7 @@ Plans:
 - [x] 03-02-PLAN.md — MCP server core: read-only DB layer + exactly 4 tools with TypedDict structured output (wave 1)
 - [x] 03-03-PLAN.md — Refresh wiring: page auto-regenerates on `indexer.refresh`, packaging + gitignore (wave 2)
 - [x] 03-04-PLAN.md — One-port app composition: McpPathRewrite mount fix, /healthz, badge route, e2e + <500ms proof (wave 2)
-- [ ] 03-05-PLAN.md — Docker packaging + Inspector CLI runtime proof + full-suite phase gate (wave 3)
+- [x] 03-05-PLAN.md — Docker packaging + Inspector CLI runtime proof + full-suite phase gate (wave 3)
 
 ### Phase 4: x402 Payment Layer
 **Goal**: Paid tool calls are gated by the x402 v2 standard with a pluggable verifier — the OKX pre-registration check passes against local Docker before any human registers
