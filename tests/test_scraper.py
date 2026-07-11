@@ -136,6 +136,22 @@ def test_parse_numeric_approval_rate_does_not_raise(caplog):
     assert warnings == []
 
 
+def test_parse_free_agent_keeps_zero_price():
+    # WR-03: a legitimately-free agent published as numeric serviceLowestFee 0
+    # must keep price 0.0 (not be dropped to None by an `if fee` truthiness
+    # guard); price_raw renders the "0" too.
+    html = (
+        '<script id="appState" type="application/json">'
+        '{"appContext":{"initialProps":{"AgentDetailPage":{"overview":'
+        '{"agentId":"9","name":"Z","score":"5.0","approvalRate":"100%",'
+        '"usageCount":3,"serviceLowestFee":0}}}}}</script>'
+    )
+    rec = parse_appstate(html, URL_3345)
+    assert rec is not None
+    assert rec.price_usdt == 0.0
+    assert rec.price_raw == "0"
+
+
 # --- 3. fetch degradation: 403 and timeout, no exception escapes --------------
 
 def test_fetch_403_returns_none_warning(tmp_path, monkeypatch, caplog):

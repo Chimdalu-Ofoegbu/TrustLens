@@ -167,8 +167,12 @@ def parse_appstate(html: str, url: str) -> AgentRecord | None:
             # Option B: keep category DERIVED — never store the raw okx.ai code.
             category=derive_category(ov["name"], ov.get("description", "")),
             tagline=ov.get("description", ""),
-            price_usdt=float(fee) if fee else None,
-            price_raw=str(fee) if fee else "",
+            # WR-03: distinguish "missing" from a legitimately-free "0" — a
+            # numeric serviceLowestFee of 0/0.0 is a valid free price, not
+            # absent. None/"" stay absent; a non-numeric fee still soft-misses
+            # via the surrounding try/except.
+            price_usdt=float(fee) if fee not in (None, "") else None,
+            price_raw=str(fee) if fee not in (None, "") else "",
             sold=int(ov.get("usageCount", 0)),
             rating=rating,
             # WR-01: coerce to str before rstrip so a numeric approvalRate
