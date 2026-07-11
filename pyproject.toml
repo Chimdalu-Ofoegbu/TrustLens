@@ -22,8 +22,12 @@ dev = [
 ]
 
 [tool.setuptools]
-# Phase 2 adds "scoring", Phase 3 adds "server" to this list
-packages = ["indexer"]
+# Phase 3 adds "server" to this list
+packages = ["indexer", "scoring"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Coverage gate scoped to scoring/ (SCOR-04). Known footgun: a subset run that
+# skips the scoring tests measures 0% and fails the gate — use
+# `python -m pytest <subset> --no-cov` for partial runs.
+addopts = "--cov=scoring --cov-report=term-missing --cov-fail-under=90"
