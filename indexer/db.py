@@ -64,6 +64,20 @@ DDL: tuple[str, ...] = (
     )
     """,
     "CREATE INDEX IF NOT EXISTS idx_snapshots_agent ON snapshots(agent_id, captured_at)",
+    # scores: Phase 2 trust scores. one row per agent via primary key; score is
+    # NULL for grade='NR' rows — insufficient evidence is a valid, successful state.
+    """
+    CREATE TABLE IF NOT EXISTS scores (
+        agent_id      TEXT PRIMARY KEY REFERENCES agents(id),
+        score         INTEGER,
+        grade         TEXT NOT NULL,
+        confidence    TEXT NOT NULL,
+        score_version TEXT NOT NULL,
+        generated_at  TEXT NOT NULL,
+        data_as_of    TEXT NOT NULL,
+        components    TEXT NOT NULL
+    )
+    """,
 )
 
 # first_seen is intentionally absent from the DO UPDATE SET list below — it
