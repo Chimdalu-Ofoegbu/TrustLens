@@ -79,7 +79,11 @@ Plans:
   2. With `X402_MOCK=1`, a mock-paid `tools/call` returns the scored result; `/healthz` and `/` are never gated, and MCP handshake methods follow a configurable `FREE_METHODS` policy
   3. Verification sits behind a pluggable `PaymentVerifier` interface that fails closed when misconfigured, so `okxweb3-app-x402` can drop in at deploy time without touching tools
   4. All payment config comes from environment variables (`TRUSTLENS_PAY_TO`, `TRUSTLENS_PRICE_USDT`, `X_LAYER_RPC`, `X402_MOCK`); no hardcoded keys or addresses; `.env` gitignored; `.env.example` documents every var with placeholders
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Payment module transcribed from the proven PoC + gate wiring into create_app + .env.example + Phase 3 e2e migration (wave 1)
+- [ ] 04-02-PLAN.md — Proof matrix: unit tests (conversion/config/verifier seam) + wire/threat tests + mock-paid e2e (wave 2)
 
 ### Phase 5: Scraper, Hardening & Submission Kit
 **Goal**: The service is submission-ready — refresh path proven with graceful fallback, full test suite green, README and demo materials complete and rehearsed against the container
@@ -102,7 +106,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Foundation & Data Indexer | 4/4 | Complete    | 2026-07-10 |
 | 2. Scoring Engine | 2/2 | Complete    | 2026-07-11 |
 | 3. MCP Server & Leaderboard | 5/5 | Complete    | 2026-07-11 |
-| 4. x402 Payment Layer | 0/TBD | Not started | - |
+| 4. x402 Payment Layer | 0/2 | Not started | - |
 | 5. Scraper, Hardening & Submission Kit | 0/TBD | Not started | - |
 
 ---
@@ -110,3 +114,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 *Phase 1 planned: 2026-07-10 — 4 plans across 3 waves (02 and 03 parallel)*
 *Phase 2 planned: 2026-07-11 — 2 plans across 2 waves (sequential: coverage-gate and refresh-wiring ordering constraints)*
 *Phase 3 planned: 2026-07-11 — 5 plans across 3 waves (01∥02, then 03∥04, then 05); requirements MCPS-01..05, WEB-01..03, OPS-01 all mapped*
+*Phase 4 planned: 2026-07-11 — 2 plans across 2 waves (sequential: proof matrix pins the wired gate); PAYX-01..03 all mapped; PoC-verified research transcribed verbatim*

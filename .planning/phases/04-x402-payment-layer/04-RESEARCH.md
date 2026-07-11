@@ -634,11 +634,14 @@ Proven-by-execution matrix (all against the real wrapped app):
 | A4 | Inspector UI mode (browser) connects like the verified CLI mode given the extended allowlist covers resources/prompts lists | Inspector | Demo-day friction only; CLI evidence covers MCPS-05 continuity; UI rehearsal is Phase 5 |
 | A5 | OKX doc capture in PROJECT.md (2026-07-10) remains current — web3.okx.com was DNS-unreachable from this environment for re-verification | Sources | Wire shape is triple-anchored (PROJECT.md + x402 v2 spec + live OKX ASP observation); a silent OKX doc change this week would surface at registration, which is a human-reviewed step anyway |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **413 vs 402 for oversized bodies** — both satisfy "never 500"; PoC proves 413. Planner picks (one line). Recommendation: keep 413 (honest semantics; OKX check unaffected).
+   - **RESOLVED: 413 kept (orchestrator lock, pinned by test_threat_oversized_body_413 in 04-02)**
 2. **`create_app()` injection surface** — recommend `create_app(payment_config=None)` param (mirrors `db_path`); alternatively tests re-wrap via `add_middleware` (both forms proven). Planner picks.
+   - **RESOLVED: `create_app(payment_config=None)` parameter (orchestrator lock, implemented in 04-01 Task 2)**
 3. **Should `completion/complete` be free?** — not sent by Inspector CLI (sniffed); tools-only server never needs it. Leave PAID (default) unless the Phase 5 demo surfaces a client that sends it.
+   - **RESOLVED: stays PAID / default-paid for unknown methods (orchestrator lock, pinned in 04-01 acceptance + 04-02 allowlist tests)**
 
 ## Security Domain
 
