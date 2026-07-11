@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Completed 04-02-PLAN.md — Phase 4 (x402 payment layer) fully executed
-last_updated: "2026-07-11T15:06:22.734Z"
+status: in_progress
+stopped_at: Completed 05-01-PLAN.md — polite okx.ai scraper + canned-response tests
+last_updated: "2026-07-11T15:49:32Z"
 last_activity: 2026-07-11
 progress:
   total_phases: 5
   completed_phases: 4
-  total_plans: 13
-  completed_plans: 13
-  percent: 100
+  total_plans: 16
+  completed_plans: 14
+  percent: 88
 ---
 
 # Project State
@@ -21,24 +21,24 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-10)
 
 **Core value:** Any human or agent can get a deterministic, evidence-based answer to "should I hire this OKX.AI agent?" in one paid MCP call.
-**Current focus:** Phase 4 — x402 Payment Layer
+**Current focus:** Phase 5 — Scraper, Hardening & Submission Kit
 
 ## Current Position
 
 Phase: 5 of 5 (scraper, hardening & submission kit)
-Plan: Not started
-Status: 04-02 complete — 33 payment proofs pinned (15 unit + 18 wire) with a test-mapped STRIDE register; full suite 283 green, scoring coverage 100%. PAYX-01/02/03 complete.
+Plan: 05-01 complete (1 of 3); next 05-02 (README, OPS-02)
+Status: 05-01 complete — `--scrape`-gated okx.ai appState scraper with graceful degradation on every failure path (403/timeout/empty-SPA/changed-markup/missing-keys/bad-cast); 18 offline canned-fixture tests; default refresh still exits 0 on 272 census rows; full suite 314 green, scoring coverage 100%. INDX-04 + OPS-03 (scraper portion) complete.
 Last activity: 2026-07-11
 
-Progress: [██████████] 100% (planned plans; Phase 5 not yet planned)
+Progress: [████████░░] 88% (14/16 plans)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 16
-- Average duration: 11 min
-- Total execution time: 1.3 hours
+- Total plans completed: 17
+- Average duration: 12 min
+- Total execution time: 1.6 hours
 
 **By Phase:**
 
@@ -68,6 +68,7 @@ Progress: [██████████] 100% (planned plans; Phase 5 not yet 
 | Phase 03-mcp-server-leaderboard P05 | 26 min | 2 tasks tasks | 3 files files |
 | Phase 04-x402-payment-layer P01 | 17 min | 2 tasks | 4 files |
 | Phase 04-x402-payment-layer P02 | 7 min | 2 tasks | 2 files |
+| Phase 05-scraper-hardening-submission-kit P01 | 20 min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,8 @@ Recent decisions affecting current work:
 - [Phase 04-01]: x402 v2 gate implemented natively as pure-ASGI middleware (buffer-and-replay, not BaseHTTPMiddleware) at the LIFO position after McpPathRewrite; PAYMENT-REQUIRED header base64-encodes the byte-identical canonical requirements JSON also served as the body; UnconfiguredVerifier is the fail-closed production default
 - [Phase 04-02]: x402 proof matrix pins the PoC (69/69) as 33 permanent tests (15 unit + 18 wire) with a test-mapped STRIDE register (T-04-01..14) — a failing test now signals a payments regression, not a wrong expectation; each threat row names its verifying test for the gsd-secure-phase audit
 - [Phase 04-02]: gate tests are hermetic via create_app(payment_config=) injection (never env/monkeypatch) and assert BOTH /mcp and /mcp/ (Pitfall 8); async verifier methods tested with asyncio.run (no pytest-asyncio dependency added)
+- [Phase 05-01]: okx.ai scraper enriches sold/rating/price/positive_pct only and leaves category DERIVED (Option B, category_source unchanged) — a raw okx.ai category code can never reach a reason string and Phase 2 percentiles never shift; the category_source='listed' seam stays available but unused (v2)
+- [Phase 05-01]: the merged --scrape batch persists as one source='census' snapshot (per-record scrape provenance deferred to v2/INDX-05) so the 0/1/2 exit contract and the test_refresh aggregate invariant (snapshots.source != 'census' == 0) both hold; scrape_agents swallows every failure and returns [] so a scrape can never change refresh's exit code (proven by the 403-MockTransport exit-0/272 test)
 
 ### Pending Todos
 
@@ -114,6 +117,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-07-11T14:31:17Z
-Stopped at: Completed 04-02-PLAN.md — Phase 4 (x402 payment layer) fully executed
+Last session: 2026-07-11T15:49:32Z
+Stopped at: Completed 05-01-PLAN.md — polite okx.ai scraper + canned-response tests (INDX-04, OPS-03 scraper portion)
 Resume file: None

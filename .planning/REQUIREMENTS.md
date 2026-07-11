@@ -12,7 +12,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **INDX-01**: `python -m indexer.refresh` populates SQLite from the census CSV with zero network access
 - [x] **INDX-02**: Parser handles census edge cases: K-suffixed sold counts ("1.55K sold"), subscript-zero USDT prices ("0.0₄15 USDT"), missing ratings (price-like value in rating column with empty positive %), multiline quoted taglines, CJK agent names
 - [x] **INDX-03**: SQLite persists `agents` (id, name, category, price, sold, rating, positive_pct, tagline, first_seen, last_seen) and `snapshots` (time series per refresh)
-- [ ] **INDX-04**: Polite scraper for okx.ai listing + agent detail pages: ≤1 req/sec, User-Agent `TrustLens/1.0`, on-disk response cache, graceful degradation to census CSV when blocked or markup changes
+- [x] **INDX-04**: Polite scraper for okx.ai listing + agent detail pages: ≤1 req/sec, User-Agent `TrustLens/1.0`, on-disk response cache, graceful degradation to census CSV when blocked or markup changes
 
 ### Scoring Engine
 
@@ -45,7 +45,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **OPS-01**: `docker compose up` serves everything (MCP + leaderboard + healthz) on one port (Dockerfile + docker-compose.yml)
 - [ ] **OPS-02**: README covers: local run, deploy steps (HTTPS-capable host; HK/Singapore suggestion), MCP Inspector test instructions, and the exact OKX ASP registration prompts with remaining manual steps
-- [ ] **OPS-03**: Full pytest suite passes: scoring functions, MCP tool schemas, and one end-to-end call against a local server with x402 mocked
+- [x] **OPS-03**: Full pytest suite passes: scoring functions, MCP tool schemas, and one end-to-end call against a local server with x402 mocked
 
 ### Submission Kit
 
@@ -87,7 +87,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INDX-01 | Phase 1 | Complete |
 | INDX-02 | Phase 1 | Complete |
 | INDX-03 | Phase 1 | Complete |
-| INDX-04 | Phase 5 | Pending |
+| INDX-04 | Phase 5 | Complete (05-01) |
 | SCOR-01 | Phase 2 | Complete |
 | SCOR-02 | Phase 2 | Complete |
 | SCOR-03 | Phase 2 | Complete |
@@ -105,7 +105,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | WEB-03 | Phase 3 | Complete |
 | OPS-01 | Phase 3 | Complete |
 | OPS-02 | Phase 5 | Pending |
-| OPS-03 | Phase 5 | Pending |
+| OPS-03 | Phase 5 | Complete (05-01) |
 | SUBM-01 | Phase 5 | Pending |
 | SUBM-02 | Phase 5 | Pending |
 | SUBM-03 | Phase 5 | Pending |

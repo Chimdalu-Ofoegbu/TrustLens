@@ -97,7 +97,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Polite okx.ai scraper (appState JSON, --scrape flag, graceful fallback) + canned-response test suite + STRIDE threat model (wave 1)
+- [x] 05-01-PLAN.md — Polite okx.ai scraper (appState JSON, --scrape flag, graceful fallback) + canned-response test suite + STRIDE threat model (wave 1)
 - [ ] 05-02-PLAN.md — README.md (OPS-02): verified local/Docker/Inspector/curl commands + verbatim OKX ASP prompts + marked human-only steps (wave 1)
 - [ ] 05-03-PLAN.md — Submission kit (demo-script, x-post, listing-copy) + banned-vocab language gate over submission/ + README with ≤80-char tagline check (wave 2)
 
@@ -112,7 +112,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Scoring Engine | 2/2 | Complete    | 2026-07-11 |
 | 3. MCP Server & Leaderboard | 5/5 | Complete    | 2026-07-11 |
 | 4. x402 Payment Layer | 2/2 | Complete    | 2026-07-11 |
-| 5. Scraper, Hardening & Submission Kit | 0/3 | Not started | - |
+| 5. Scraper, Hardening & Submission Kit | 1/3 | In progress | - |
 
 ---
 *Roadmap created: 2026-07-10 — 5 phases (coarse granularity), 25/25 v1 requirements mapped*
