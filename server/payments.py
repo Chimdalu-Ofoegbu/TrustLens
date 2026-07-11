@@ -50,17 +50,36 @@ HDR_PAYMENT_RESPONSE = b"PAYMENT-RESPONSE"
 # ASGI request header names arrive lowercased (ASGI spec) - lookup key:
 HDR_PAYMENT_SIGNATURE = b"payment-signature"
 
-# FREE = MCP protocol plumbing (locked: initialize, notifications/*, tools/list;
-# ping added as plumbing - one-line flip to gate everything per CONTEXT).
+# FREE_METHODS is an allowlist of unpaid MCP methods. tools/call (the revenue
+# method) is deliberately absent, and ANY method not listed here defaults to PAID
+# (proven: tools/execute_all -> 402). Gating everything is still a one-line flip:
+# FREE_METHODS = frozenset().
+#
+# DELIBERATE, ORCHESTRATOR-APPROVED WIDENING beyond the 04-CONTEXT lock:
+# 04-CONTEXT (line 28) locks the FREE set to `initialize`, `notifications/*`, and
+# `tools/list`. 04-RESEARCH (Pitfall 1) then PROVED that CONTEXT-only set bricks
+# MCP Inspector: Inspector 0.22.0 sends `logging/setLevel` during connect (FastMCP
+# advertises the `logging` capability), gets 402'd, and ABORTS before ever calling
+# tools/list - so `--method tools/list` fails and the Phase 5 demo dies. The fix
+# stays inside the locked "configurable FREE_METHODS set" design by extending the
+# allowlist with client-bootstrap plumbing. Each group and its justification:
 FREE_METHODS = frozenset({
-    "initialize", "ping", "tools/list",
-    # client bootstrap plumbing - Inspector 0.22.0 sends logging/setLevel
-    # on connect (PROVEN by sniffer); discovery lists are free for
-    # marketplace/Inspector introspection
-    "logging/setLevel", "resources/list", "resources/templates/list",
-    "prompts/list",
+    # (1) CONTEXT-locked handshake + the one revenue-free introspection call.
+    "initialize", "tools/list",
+    # (2) Bootstrap plumbing SDK clients send on connect before tools/list.
+    #     `ping` is a keepalive; `logging/setLevel` is emitted by Inspector 0.22.0
+    #     immediately post-handshake (PROVEN by request sniffer, 04-RESEARCH).
+    #     Without these two, Inspector never reaches tools/list.
+    "ping", "logging/setLevel",
+    # (3) Capability-discovery lists SDK/UI clients enumerate on connect.
+    #     SAFE-ONLY-WHILE-EMPTY: the server registers NO resources/prompts, so
+    #     these return [] and leak zero paid product. If a future phase ever
+    #     registers a real resource or prompt, these entries begin serving that
+    #     product UNPAID - re-evaluate their FREE status at that point (this is
+    #     the forward-risk flagged by review WR-01).
+    "resources/list", "resources/templates/list", "prompts/list",
 })
-FREE_METHOD_PREFIXES = ("notifications/",)
+FREE_METHOD_PREFIXES = ("notifications/",)  # CONTEXT-locked: notifications/* free
 
 
 def is_free(method: str) -> bool:

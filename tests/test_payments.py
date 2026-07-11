@@ -242,19 +242,30 @@ def test_unconfigured_verifier_fail_closed():
 
 # 13. FREE_METHODS is the orchestrator-locked EXTENDED allowlist; tools/call is
 #     never free, and unknown methods default to PAID.
+#
+# AUDIT TRAIL (review WR-01 / IN-02): this frozenset is deliberately WIDER than
+# the 04-CONTEXT (line 28) lock, which fixes the FREE set to `initialize`,
+# `notifications/*`, and `tools/list` only. The five extra methods below were
+# added because 04-RESEARCH (Pitfall 1) PROVED the CONTEXT-only set bricks MCP
+# Inspector: it sends `logging/setLevel` during connect and aborts on the 402
+# before ever calling tools/list. The widening is intentional and orchestrator-
+# approved (see the FREE_METHODS comment in server/payments.py); this test pins
+# it so any *further* drift is caught, and the split below records which members
+# are CONTEXT-locked vs research-added so the deviation is auditable here alone.
 def test_free_methods_allowlist():
-    assert FREE_METHODS == frozenset(
-        {
-            "initialize",
-            "ping",
-            "tools/list",
-            "logging/setLevel",
-            "resources/list",
-            "resources/templates/list",
-            "prompts/list",
-        }
-    )
-    # notifications/* are free via prefix.
+    # CONTEXT-locked members (04-CONTEXT line 28). notifications/* is via prefix.
+    context_locked = {"initialize", "tools/list"}
+    # Research-added bootstrap/discovery plumbing (04-RESEARCH Pitfall 1). SAFE
+    # ONLY while the server registers no resources/prompts - see WR-01 note.
+    research_added = {
+        "ping",
+        "logging/setLevel",
+        "resources/list",
+        "resources/templates/list",
+        "prompts/list",
+    }
+    assert FREE_METHODS == frozenset(context_locked | research_added)
+    # notifications/* are free via prefix (CONTEXT-locked, not in the frozenset).
     assert is_free("notifications/initialized") is True
     assert is_free("notifications/cancelled") is True
     # the revenue method is NEVER free.
