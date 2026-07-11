@@ -1,0 +1,16 @@
+# Default: normalize all text files to LF on checkout, everywhere. This repo is
+# authored on Windows with core.autocrlf=true; without this a fresh clone or CI
+# on Windows rewrites LF->CRLF and breaks byte-exact tests (scoring determinism,
+# HTML byte-identity). Existing blobs are already LF, so this is churn-free.
+* text=auto eol=lf
+
+# Specific overrides come AFTER the glob (gitattributes is last-match-wins).
+
+# The marketplace census MUST be verbatim bytes: it contains intentional bare-LF
+# newlines inside quoted multiline taglines that tests assert on byte-for-byte.
+# `binary` (= -text -diff) disables ALL line-ending conversion.
+data/okx-marketplace-census-2026-07-10.csv binary
+
+# Runtime data artifacts (gitignored anyway) — never convert.
+*.db      binary
+*.sqlite3 binary
