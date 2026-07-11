@@ -22,7 +22,9 @@ findings:
   warning: 3
   info: 6
   total: 9
-status: issues_found
+status: clean
+fixed_at: 2026-07-11
+fix_commits: [86840eb, bd8d922, 05b4f86]
 ---
 
 # Phase 2: Code Review Report
@@ -30,7 +32,9 @@ status: issues_found
 **Reviewed:** 2026-07-11T00:43:37Z
 **Depth:** standard
 **Files Reviewed:** 13
-**Status:** issues_found
+**Status:** clean — all 3 Warnings fixed (2026-07-11); 6 Info findings remain open, documented for the Phase 5 hardening sweep
+
+**Fix pass (2026-07-11):** WR-01, WR-02, WR-03 fixed in commits `86840eb`, `bd8d922`, `05b4f86` (one atomic commit per finding, each with regression tests). Full suite after each fix: 175 passed, scoring/ at 100% coverage. Rendered outputs for all 272 census agents are byte-identical — scores-dump SHA256 `f62aa164c3cc36a1…` matches the 02-VERIFICATION.md pin before and after — so the pinned distribution (A:12/B:9/C:19/D:54/F:27/NR:151), golden values, and SCORE_VERSION "1.0.0" are all unchanged. Per-finding resolutions inline below.
 
 ## Summary
 
@@ -63,6 +67,8 @@ conn.execute(
 ```
 (Alternative, if "score only currently-listed agents" is preferred: `SELECT * FROM agents WHERE last_seen = ? ORDER BY id` with `data_as_of` bound — that makes the self-cleaning claim true instead. Either way, this is a persisted-shape semantics decision: settle it before Phase 3 serves the column, and fix the docstring in the same commit.)
 
+**Resolution: FIXED** in `86840eb` (2026-07-11). Took the "score only currently-listed agents" alternative: `compute_all` now selects `WHERE last_seen = ?` bound to `data_as_of`, so a delisted agent is never re-scored, benchmark stats are built from the current capture only, and the self-cleaning claim is now true (docstring corrected in the same commit). Regression test `test_delisted_agent_is_not_rescored_with_false_provenance` seeds A+B-style history (full census at the seed capture, one agent absent from the next) and proves: stale agents row survives with old `last_seen`, no score row for the delisted agent, all 271 remaining rows carry the new `data_as_of` truthfully. Every current call path passes the `captured_at` of the batch just persisted, so all 272 census agents still qualify — outputs byte-identical.
+
 ### WR-02: `category` is interpolated into outward reason strings with no allowlist — the "9 fixed category names" mitigation is assumed, not enforced
 
 **File:** `scoring/components.py:199` (`label = category`), `scoring/components.py:211-221` (rendered)
@@ -78,6 +84,8 @@ if category not in CATEGORY_LABELS or len(pool) < MIN_CATEGORY_PRICED:
     label = "marketplace"   # never render text outside the fixed vocabulary
 ```
 Add a unit test rendering a non-bucket category and asserting the label falls back.
+
+**Resolution: FIXED** in `bd8d922` (2026-07-11). `c_price_vs_category` now falls back to the marketplace pool AND the fixed `"marketplace"` label whenever `category not in CANONICAL_CATEGORIES` (or the pool is under `MIN_CATEGORY_PRICED`). One deviation from the fix hint, per project direction: instead of mirroring the 9 names, `CANONICAL_CATEGORIES = frozenset(CATEGORIES)` imports the authoritative list directly from `indexer.category` — single source of truth, no drift possible. This is safe: `indexer/__init__.py` is docstring-only (no import cycle through `indexer.refresh`) and `indexer.category` is pure (`re` + `unicodedata` only), so no I/O or wall clock enters scoring; the no-I/O source guard stays green. Tests: `test_c4_non_canonical_category_never_renders_into_reason` (the hostile probe string from this finding, given a pool clearing `MIN_CATEGORY_PRICED`, never reaches the reason — label, pool, and benchmark all fall back) and `test_c4_canonical_set_is_the_nine_derived_buckets` (pins the set to exactly the 9 buckets). All 272 census categories are canonical, so outputs are byte-identical.
 
 ### WR-03: `c_price_vs_category` raises ZeroDivisionError when both pools are empty and a price is present
 
@@ -96,7 +104,11 @@ if not pool:
     }
 ```
 
+**Resolution: FIXED** in `05b4f86` (2026-07-11). Guard added exactly as suggested, after the marketplace fallback (so it also covers the WR-02 non-canonical path): empty pool with a present price returns the explicit insufficient-data state — score `None`, observed price preserved, neutral vocabulary — never `ZeroDivisionError`/`IndexError`. Regression tests: `test_c4_priced_agent_with_no_priced_pools_is_insufficient_not_crash` (component level, stats built from unpriced rows) and `test_score_agent_priced_row_against_priceless_stats_does_not_crash` (public API — the exact probe from this finding; other components still aggregate). The branch is unreachable for the 272-agent census (any priced agent implies a non-empty market pool), so outputs are byte-identical.
+
 ## Info
+
+_All six Info findings remain OPEN — documented here for the Phase 5 hardening sweep; none is reachable with current data or blocks Phase 3._
 
 ### IN-01: `--generated-at` (and inherited `--captured-at`) accepted with zero format validation into served provenance columns
 
@@ -139,3 +151,4 @@ if not pool:
 _Reviewed: 2026-07-11T00:43:37Z_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_
+_Fix pass: 2026-07-11 — WR-01..03 fixed (commits 86840eb, bd8d922, 05b4f86); IN-01..06 open for Phase 5_
