@@ -83,7 +83,7 @@ Plans:
 
 Plans:
 - [x] 04-01-PLAN.md — Payment module transcribed from the proven PoC + gate wiring into create_app + .env.example + Phase 3 e2e migration (wave 1)
-- [ ] 04-02-PLAN.md — Proof matrix: unit tests (conversion/config/verifier seam) + wire/threat tests + mock-paid e2e (wave 2)
+- [x] 04-02-PLAN.md — Proof matrix: unit tests (conversion/config/verifier seam) + wire/threat tests + mock-paid e2e (wave 2)
 
 ### Phase 5: Scraper, Hardening & Submission Kit
 **Goal**: The service is submission-ready — refresh path proven with graceful fallback, full test suite green, README and demo materials complete and rehearsed against the container
