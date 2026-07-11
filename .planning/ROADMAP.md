@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Scoring Engine** - Deterministic 0–100 TrustScore + A–F grade with neutral per-component reasons, ≥90% coverage on scoring/ (completed 2026-07-11)
 - [x] **Phase 3: MCP Server & Leaderboard** - 4 MCP tools + static leaderboard + /healthz served free from one dockerized port (completed 2026-07-11)
 - [x] **Phase 4: x402 Payment Layer** - x402 v2 402-challenge gate with pluggable mock verifier; OKX pre-registration check passes locally (completed 2026-07-11)
-- [ ] **Phase 5: Scraper, Hardening & Submission Kit** - Timeboxed polite scraper, full test suite, complete README, rehearsed demo/listing materials
+- [x] **Phase 5: Scraper, Hardening & Submission Kit** - Timeboxed polite scraper, full test suite, complete README, rehearsed demo/listing materials (completed 2026-07-11)
 
 ## Phase Details
 
@@ -99,7 +99,7 @@ Plans:
 Plans:
 - [x] 05-01-PLAN.md — Polite okx.ai scraper (appState JSON, --scrape flag, graceful fallback) + canned-response test suite + STRIDE threat model (wave 1)
 - [x] 05-02-PLAN.md — README.md (OPS-02): verified local/Docker/Inspector/curl commands + verbatim OKX ASP prompts + marked human-only steps (wave 1)
-- [ ] 05-03-PLAN.md — Submission kit (demo-script, x-post, listing-copy) + banned-vocab language gate over submission/ + README with ≤80-char tagline check (wave 2)
+- [x] 05-03-PLAN.md — Submission kit (demo-script, x-post, listing-copy) + banned-vocab language gate over submission/ + README with ≤80-char tagline check (wave 2)
 
 ## Progress
 
@@ -112,7 +112,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Scoring Engine | 2/2 | Complete    | 2026-07-11 |
 | 3. MCP Server & Leaderboard | 5/5 | Complete    | 2026-07-11 |
 | 4. x402 Payment Layer | 2/2 | Complete    | 2026-07-11 |
-| 5. Scraper, Hardening & Submission Kit | 2/3 | In progress | - |
+| 5. Scraper, Hardening & Submission Kit | 3/3 | Complete    | 2026-07-11 |
 
 ---
 *Roadmap created: 2026-07-10 — 5 phases (coarse granularity), 25/25 v1 requirements mapped*

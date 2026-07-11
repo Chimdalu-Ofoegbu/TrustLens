@@ -49,9 +49,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Submission Kit
 
-- [ ] **SUBM-01**: `submission/demo-script.md` — 90-second demo storyboard (problem → live MCP call from Claude → score card with anomaly flag → agent-calling-agent flow → leaderboard + on-chain revenue)
-- [ ] **SUBM-02**: `submission/x-post-draft.md` — launch thread with #OKXAI
-- [ ] **SUBM-03**: `submission/listing-copy.md` — ASP name, tagline ≤80 chars, description, category Software Services, price 0.01 USDT
+- [x] **SUBM-01**: `submission/demo-script.md` — 90-second demo storyboard (problem → live MCP call from Claude → score card with anomaly flag → agent-calling-agent flow → leaderboard + on-chain revenue)
+- [x] **SUBM-02**: `submission/x-post-draft.md` — launch thread with #OKXAI
+- [x] **SUBM-03**: `submission/listing-copy.md` — ASP name, tagline ≤80 chars, description, category Software Services, price 0.01 USDT
 
 ## v2 Requirements
 
@@ -106,9 +106,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | OPS-01 | Phase 3 | Complete |
 | OPS-02 | Phase 5 | Complete (05-02) |
 | OPS-03 | Phase 5 | Complete (05-01) |
-| SUBM-01 | Phase 5 | Pending |
-| SUBM-02 | Phase 5 | Pending |
-| SUBM-03 | Phase 5 | Pending |
+| SUBM-01 | Phase 5 | Complete (05-03) |
+| SUBM-02 | Phase 5 | Complete (05-03) |
+| SUBM-03 | Phase 5 | Complete (05-03) |
 | PAYX-04 | v2 (not in roadmap) | Deferred |
 | INDX-05 | v2 (not in roadmap) | Deferred |
 
@@ -119,4 +119,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-07-10*
-*Last updated: 2026-07-10 after roadmap creation (traceability mapped, 5 phases)*
+*Last updated: 2026-07-11 after 05-03 (SUBM-01/02/03 complete — all 25 v1 requirements delivered)*

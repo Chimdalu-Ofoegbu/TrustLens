@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-stopped_at: Completed 05-02-PLAN.md — README (OPS-02) with verified commands + verbatim OKX ASP prompts
-last_updated: "2026-07-11T16:01:00Z"
+stopped_at: Completed 05-03-PLAN.md — submission kit (SUBM-01/02/03) + banned-vocab language gate (OPS-03); Phase 5 complete, all v1.0 requirements delivered
+last_updated: "2026-07-11T16:32:00Z"
 last_activity: 2026-07-11
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 16
-  completed_plans: 15
-  percent: 94
+  completed_plans: 16
+  percent: 100
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-07-10)
 
 ## Current Position
 
-Phase: 5 of 5 (scraper, hardening & submission kit)
-Plan: 05-02 complete (2 of 3); next 05-03 (submission kit + language gate, Wave 2)
-Status: 05-02 complete — README.md (OPS-02) at the repo root: 11 locked sections in order, both OKX ASP agent prompts quoted VERBATIM, every command transcribed byte-for-byte from a prior-phase/research-verified source, 5 env vars documented with placeholders, the make_verifier/PaymentVerifier/UnconfiguredVerifier SDK-swap seam named, all HUMAN-ONLY stop conditions marked, zero banned vocabulary. OPS-02 complete.
+Phase: 5 of 5 complete (scraper, hardening & submission kit)
+Plan: 05-03 complete (3 of 3) — Phase 5 done; v1.0 milestone plans all delivered
+Status: 05-03 complete — submission/ holds demo-script.md (SUBM-01: 90s storyboard, verified GlassDesk 3465 flagged-not-accused anomaly beat with the verbatim reason string, HUMAN-ONLY Docker marker), x-post-draft.md (SUBM-02: #OKXAI thread, neutral, determinism + on-chain angle), and listing-copy.md (SUBM-03: 66-char primary tagline + 4 alternates, Software Services, 0.01 USDT, endpoint/methodology placeholders). tests/test_submission_language.py (OPS-03 hardening) enforces the banned-vocab regex over submission/*.md + README.md and the <=80-char tagline limit — full suite 317 passed, scoring coverage 100%, gate unchanged. All 25 v1 requirements complete; ready for /gsd-complete-milestone.
 Last activity: 2026-07-11
 
-Progress: [█████████░] 94% (15/16 plans)
+Progress: [██████████] 100% (16/16 plans)
 
 ## Performance Metrics
 
@@ -70,6 +70,7 @@ Progress: [█████████░] 94% (15/16 plans)
 | Phase 04-x402-payment-layer P02 | 7 min | 2 tasks | 2 files |
 | Phase 05-scraper-hardening-submission-kit P01 | 20 min | 2 tasks | 7 files |
 | Phase 05-scraper-hardening-submission-kit P02 | 9 min | 1 task | 4 files |
+| Phase 05-scraper-hardening-submission-kit P03 | 12 min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -97,6 +98,8 @@ Recent decisions affecting current work:
 - [Phase 05-01]: okx.ai scraper enriches sold/rating/price/positive_pct only and leaves category DERIVED (Option B, category_source unchanged) — a raw okx.ai category code can never reach a reason string and Phase 2 percentiles never shift; the category_source='listed' seam stays available but unused (v2)
 - [Phase 05-01]: the merged --scrape batch persists as one source='census' snapshot (per-record scrape provenance deferred to v2/INDX-05) so the 0/1/2 exit contract and the test_refresh aggregate invariant (snapshots.source != 'census' == 0) both hold; scrape_agents swallows every failure and returns [] so a scrape can never change refresh's exit code (proven by the 403-MockTransport exit-0/272 test)
 - [Phase 05-02]: README is a verified-commands-only doc — every command is transcribed byte-for-byte from a command proven in an earlier phase or 05-RESEARCH.md; the H1 intro block is locked section 1 (what-it-is + 4 tools) and the other 10 sections are ## headings in CONTEXT order; both OKX ASP prompts sit each in their own fenced ```text block so the exact string copy-pastes without smart-quote/punctuation drift; secrets are placeholder-only (0x0000...0000, <host>)
+- [Phase 05-03]: the submission language gate mirrors test_scoring_golden's directory-scan — the banned-vocab regex literal lives in tests/test_submission_language.py (outside the scanned tree) and scans submission/*.md + README.md ONLY (never source dirs), so indexer/category.py's scam/rug keyword table can never trip it; the primary tagline is a machine-checkable contract (a single line of the exact form **Tagline:** <text>, asserted <=80 chars)
+- [Phase 05-03]: neutral-language meta-commentary must not enumerate the banned tokens literally — the demo/x-post checklists that named "fraud/scam/fake/manipulat" tripped the very gate they described (Rule 1 bug, fixed before commit); they now reference "the banned accusatory vocabulary" and the enforcing test instead of spelling the tokens out
 
 ### Pending Todos
 
@@ -119,6 +122,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-07-11T16:01:00Z
-Stopped at: Completed 05-02-PLAN.md — README (OPS-02): verified commands + verbatim OKX ASP prompts + marked human-only steps
+Last session: 2026-07-11T16:32:00Z
+Stopped at: Completed 05-03-PLAN.md — submission kit (SUBM-01/02/03) + banned-vocab language gate (OPS-03); Phase 5 complete (3/3), all 25 v1 requirements delivered. Next: /gsd-complete-milestone (v1.0). Carried human-only items: start Docker Desktop engine to rehearse docker compose up + the demo, then deploy / ASP registration / X post / hackathon form.
 Resume file: None
