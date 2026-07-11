@@ -302,6 +302,43 @@ def test_refresh_scrape_all_403_still_exits_0_with_census(tmp_path, monkeypatch)
         conn.close()
 
 
+def test_refresh_successful_scrape_tags_source_scrape(tmp_path, monkeypatch):
+    """WR-02: a successful --scrape must NOT mislabel scraped rows as census.
+
+    Mock scrape_agents to enrich id 3345 (a real census id, matching
+    DEMO_AGENT_IDS). The batch is now scrape-enriched, so its snapshots persist
+    with source='scrape' — provenance is honest, not census.
+    """
+    from indexer import refresh
+
+    monkeypatch.setattr(
+        "indexer.scraper.scrape_agents", lambda *a, **k: [_agent("3345", sold=42)]
+    )
+    db = tmp_path / "scrape_ok.db"
+    rc = refresh.main([
+        "--scrape",
+        "--csv", str(CSV_PATH),
+        "--db", str(db),
+        "--captured-at", SEED_TS,
+        "--web-out", str(tmp_path / "index.html"),
+    ])
+    assert rc == 0
+    conn = sqlite3.connect(db)
+    try:
+        # 3345 already exists in the census, so merge overrides (no new row).
+        assert conn.execute("SELECT COUNT(*) FROM agents").fetchone()[0] == 272
+        # At least one non-census snapshot exists — the mislabeling is gone.
+        assert conn.execute(
+            "SELECT COUNT(*) FROM snapshots WHERE source = 'scrape'"
+        ).fetchone()[0] >= 1
+        # The enriched agent's own snapshot carries the scrape provenance.
+        assert conn.execute(
+            "SELECT source FROM snapshots WHERE agent_id = '3345'"
+        ).fetchone()[0] == "scrape"
+    finally:
+        conn.close()
+
+
 def test_refresh_no_scrape_flag_unchanged(tmp_path):
     # Sanity: the default path (no --scrape) still exits 0 with 272 rows.
     from indexer import refresh

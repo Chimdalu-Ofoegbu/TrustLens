@@ -228,6 +228,8 @@ def main(argv: list[str] | None = None) -> int:
         log.error("failed to read census csv %s: %s", csv_path, exc)
         return 1
 
+    # Provenance defaults to census; a successful scrape re-tags this batch.
+    source = "census"
     if args.scrape:
         # Import locally so the default (offline) path never loads the scraper.
         # scrape_agents swallows every failure and returns [] -> no try/except
@@ -237,10 +239,19 @@ def main(argv: list[str] | None = None) -> int:
         scraped = scrape_agents([detail_url(i) for i in DEMO_AGENT_IDS])
         records = merge(records, scraped)
         log.info("scrape enrichment: %d record(s) merged", len(scraped))
+        # WR-02: when the scrape actually enriched >=1 record, this snapshot
+        # batch is scrape-enriched (census floor + scrape overrides), so tag it
+        # source="scrape" HONESTLY rather than mislabeling scraped observations
+        # as census. An empty scrape (every failure path -> []) leaves source at
+        # "census", preserving the offline-determinism + exit-code contract.
+        # Per-record source tagging (each snapshot carries its own origin) is the
+        # durable refinement -> deferred to the v2/INDX-05 seam.
+        if scraped:
+            source = "scrape"
 
     try:
         summary = _persist_records(
-            args.db, records, field_warnings, captured_at,
+            args.db, records, field_warnings, captured_at, source,
             generated_at=args.generated_at, web_out=args.web_out,
         )
     except (OSError, sqlite3.Error) as exc:
