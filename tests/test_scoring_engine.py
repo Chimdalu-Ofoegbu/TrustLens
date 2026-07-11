@@ -175,6 +175,24 @@ def test_confidence_low_when_two_or_fewer_scored_despite_sales(stats):
     assert card["confidence"] == "low"
 
 
+# --- sparse externally built stats -----------------------------------------------
+
+
+def test_score_agent_priced_row_against_priceless_stats_does_not_crash():
+    # WR-03 regression via the public API: score_agent documents no "stats
+    # must contain a priced row" precondition, so a priced row scored against
+    # externally built priceless stats must degrade C4 to insufficient data —
+    # never ZeroDivisionError.
+    priceless = build_stats([mk_row(sold=3), mk_row(sold=40, rating=4.0, positive_pct=90.0)])
+    card = score_agent(
+        mk_row(sold=10, rating=4.5, positive_pct=90.0, price_usdt=2.0), priceless, 1
+    )
+    c4 = card["components"]["price_vs_category"]
+    assert c4["score"] is None
+    assert c4["reason"] == "insufficient data — no priced agents available for comparison"
+    assert card["score"] is not None  # remaining components still aggregate
+
+
 # --- deterministic serialization ------------------------------------------------------
 
 

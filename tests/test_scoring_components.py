@@ -335,6 +335,20 @@ def test_c4_non_canonical_category_never_renders_into_reason():
     assert comp["benchmark"] == 3.0  # marketplace median — hostile pool never used
 
 
+def test_c4_priced_agent_with_no_priced_pools_is_insufficient_not_crash():
+    # WR-03 regression: stats built entirely from unpriced rows used to raise
+    # ZeroDivisionError for any priced row (percentile divides by len(pool)).
+    stats = build_stats([_row(sold=3), _row(sold=0)])  # zero priced rows anywhere
+    comp = c_price_vs_category(4.0, CAT, stats)
+    assert comp["score"] is None
+    assert comp["observed"] == 4.0
+    assert comp["benchmark"] is None
+    assert comp["flagged"] is False
+    assert comp["reason"] == (
+        "insufficient data — no priced agents available for comparison"
+    )
+
+
 # --- C5 listing_age_consistency --------------------------------------------------
 
 

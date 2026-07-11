@@ -194,6 +194,12 @@ def c_price_vs_category(price_usdt: float | None, category: str, stats: Stats) -
     (real trigger: "Other Services", 3 priced), as does any category
     outside CANONICAL_CATEGORIES — only the fixed bucket vocabulary may
     render into reason text, never an arbitrary category string.
+
+    Stats need not contain any priced row: if the marketplace pool is
+    also empty, the component degrades to the explicit insufficient-data
+    state instead of dividing by zero (unreachable via compute_all, which
+    builds stats from the same rows it scores, but score_agent and this
+    function are public API accepting externally built stats).
     """
     if price_usdt is None:
         return {
@@ -209,6 +215,15 @@ def c_price_vs_category(price_usdt: float | None, category: str, stats: Stats) -
     if category not in CANONICAL_CATEGORIES or len(pool) < MIN_CATEGORY_PRICED:
         pool = stats.market_pool
         label = "marketplace"  # never render text outside the fixed vocabulary
+    if not pool:
+        return {
+            "score": None,
+            "weight": WEIGHTS["price_vs_category"],
+            "observed": price_usdt,
+            "benchmark": None,
+            "flagged": False,
+            "reason": "insufficient data — no priced agents available for comparison",
+        }
     p = percentile(pool, price_usdt)
     deviation = abs(p - 0.5) * 2
     score = round(100 - PRICE_DEV_SPAN * deviation)
