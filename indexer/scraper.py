@@ -171,9 +171,16 @@ def parse_appstate(html: str, url: str) -> AgentRecord | None:
             price_raw=str(fee) if fee else "",
             sold=int(ov.get("usageCount", 0)),
             rating=rating,
-            positive_pct=float(approval.rstrip("%")) if approval else None,
+            # WR-01: coerce to str before rstrip so a numeric approvalRate
+            # (e.g. 100, a plausible marketplace-JSON drift) parses instead of
+            # raising AttributeError; None/"" stay absent, 0 stays 0.0.
+            positive_pct=(
+                float(str(approval).rstrip("%"))
+                if approval not in (None, "")
+                else None
+            ),
         )
-    except (ValueError, KeyError, TypeError) as exc:
+    except (ValueError, KeyError, TypeError, AttributeError) as exc:
         log.warning("appState field cast miss url=%r: %s", url, exc.__class__.__name__)
         return None
 

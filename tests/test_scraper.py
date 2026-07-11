@@ -116,6 +116,26 @@ def test_parse_zero_score_is_unrated():
     assert rec.sold == 3
 
 
+def test_parse_numeric_approval_rate_does_not_raise(caplog):
+    # WR-01: approvalRate as a JSON number (not a "%"-string) must not raise
+    # AttributeError — parse_appstate honors its total-swallow "never raises"
+    # contract. The defensive str() coercion parses it to 100.0 (no soft miss,
+    # no WARNING) rather than dropping the record.
+    html = (
+        '<script id="appState" type="application/json">'
+        '{"appContext":{"initialProps":{"AgentDetailPage":{"overview":'
+        '{"agentId":"9","name":"Z","score":"5.0","approvalRate":100,'
+        '"usageCount":3,"serviceLowestFee":"0.01"}}}}}</script>'
+    )
+    with caplog.at_level(logging.WARNING, logger="indexer.scraper"):
+        rec = parse_appstate(html, URL_3345)  # must NOT raise AttributeError
+    assert rec is not None
+    assert rec.positive_pct == 100.0
+    warnings = [r for r in caplog.records
+                if r.name == "indexer.scraper" and r.levelno == logging.WARNING]
+    assert warnings == []
+
+
 # --- 3. fetch degradation: 403 and timeout, no exception escapes --------------
 
 def test_fetch_403_returns_none_warning(tmp_path, monkeypatch, caplog):
