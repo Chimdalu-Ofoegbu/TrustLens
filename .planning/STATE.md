@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in_progress
-stopped_at: Completed 05-03-PLAN.md — submission kit (SUBM-01/02/03) + banned-vocab language gate (OPS-03); Phase 5 complete, all v1.0 requirements delivered
-last_updated: "2026-07-11T16:32:00Z"
+status: verifying
+stopped_at: "Completed 05-03-PLAN.md — submission kit (SUBM-01/02/03) + banned-vocab language gate (OPS-03); Phase 5 complete (3/3), all 25 v1 requirements delivered. Next: /gsd-complete-milestone (v1.0). Carried human-only items: start Docker Desktop engine to rehearse docker compose up + the demo, then deploy / ASP registration / X post / hackathon form."
+last_updated: "2026-07-11T16:32:05.608Z"
 last_activity: 2026-07-11
 progress:
   total_phases: 5
@@ -25,8 +25,8 @@ See: .planning/PROJECT.md (updated 2026-07-10)
 
 ## Current Position
 
-Phase: 5 of 5 complete (scraper, hardening & submission kit)
-Plan: 05-03 complete (3 of 3) — Phase 5 done; v1.0 milestone plans all delivered
+Phase: 5 of 5 (scraper, hardening & submission kit)
+Plan: Not started
 Status: 05-03 complete — submission/ holds demo-script.md (SUBM-01: 90s storyboard, verified GlassDesk 3465 flagged-not-accused anomaly beat with the verbatim reason string, HUMAN-ONLY Docker marker), x-post-draft.md (SUBM-02: #OKXAI thread, neutral, determinism + on-chain angle), and listing-copy.md (SUBM-03: 66-char primary tagline + 4 alternates, Software Services, 0.01 USDT, endpoint/methodology placeholders). tests/test_submission_language.py (OPS-03 hardening) enforces the banned-vocab regex over submission/*.md + README.md and the <=80-char tagline limit — full suite 317 passed, scoring coverage 100%, gate unchanged. All 25 v1 requirements complete; ready for /gsd-complete-milestone.
 Last activity: 2026-07-11
 
@@ -36,7 +36,7 @@ Progress: [██████████] 100% (16/16 plans)
 
 **Velocity:**
 
-- Total plans completed: 17
+- Total plans completed: 20
 - Average duration: 12 min
 - Total execution time: 1.6 hours
 
@@ -48,6 +48,7 @@ Progress: [██████████] 100% (16/16 plans)
 | 2 | 2 | - | - |
 | 3 | 5 | - | - |
 | 4 | 2 | - | - |
+| 5 | 3 | - | - |
 
 **Recent Trend:**
 
