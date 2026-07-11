@@ -25,8 +25,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **MCPS-01**: MCP server exposes exactly 4 tools: `score_agent(agent_id_or_name)`, `compare_agents(ids)`, `category_leaderboard(category, limit=10)`, `marketplace_stats()`
 - [x] **MCPS-02**: All tool responses are deterministic JSON including `generated_at` and `methodology_url` fields
-- [ ] **MCPS-03**: `/healthz` endpoint returns service health
-- [ ] **MCPS-04**: `score_agent("这个能吃吗？")` and `score_agent("3345")` both return a full JSON score card in <500ms from a warm DB
+- [x] **MCPS-03**: `/healthz` endpoint returns service health
+- [x] **MCPS-04**: `score_agent("这个能吃吗？")` and `score_agent("3345")` both return a full JSON score card in <500ms from a warm DB
 - [ ] **MCPS-05**: MCP Inspector successfully lists and calls all 4 tools
 
 ### x402 Payments
@@ -94,8 +94,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SCOR-04 | Phase 2 | Complete |
 | MCPS-01 | Phase 3 | Complete |
 | MCPS-02 | Phase 3 | Complete |
-| MCPS-03 | Phase 3 | Pending |
-| MCPS-04 | Phase 3 | Pending |
+| MCPS-03 | Phase 3 | Complete |
+| MCPS-04 | Phase 3 | Complete |
 | MCPS-05 | Phase 3 | Pending |
 | PAYX-01 | Phase 4 | Pending |
 | PAYX-02 | Phase 4 | Pending |

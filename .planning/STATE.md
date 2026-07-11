@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-03-PLAN.md
-last_updated: "2026-07-11T11:53:27.626Z"
+stopped_at: Completed 03-04-PLAN.md
+last_updated: "2026-07-11T12:11:54.847Z"
 last_activity: 2026-07-11
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 11
-  completed_plans: 9
-  percent: 82
+  completed_plans: 10
+  percent: 91
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-07-10)
 ## Current Position
 
 Phase: 3 of 5 (mcp server & leaderboard)
-Plan: 3 of 5 complete
+Plan: 4 of 5 complete
 Status: Ready to execute
 Last activity: 2026-07-11
 
@@ -62,6 +62,7 @@ Progress: [██████░░░░] 64%
 | Phase 03-mcp-server-leaderboard P01 | 11 min | 3 tasks | 5 files |
 | Phase 03-mcp-server-leaderboard P02 | 12 min | 3 tasks | 5 files |
 | Phase 03-mcp-server-leaderboard P03 | 10 min | 2 tasks tasks | 6 files files |
+| Phase 03-mcp-server-leaderboard P04 | 12 min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,8 @@ Recent decisions affecting current work:
 - [Phase 03-01]: data-v sort values reuse fixed-decimal display formatting for prices so scientific notation never appears in the leaderboard page
 - [Phase 03-02]: MCP tool error paths all route through one _err JSON serializer (ToolError-only channel); explicit per-tool try/except guards keep FastMCP schema derivation on pristine annotated functions
 - [Phase 03-03]: web_out=None skip-sentinel — page-build side effect is a parameter; only the CLI boundary applies the web/dist/index.html default, keeping library refresh() calls and the test suite from writing into the repo tree
+- [Phase 03-04]: %2F badge traversal asserts verified starlette 1.3.1 reality — percent-decoded path never matches the badge route (StaticFiles guard 404s); the %5C backslash variant is the probe that exercises the T-03-13 allowlist regex (200 neutral N/A)
+- [Phase 03-04]: badge route degrades to the neutral N/A badge on sqlite3.Error/OSError instead of 500 — embeds must always render; exception detail stays server-side
 
 ### Pending Todos
 
@@ -101,6 +104,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-07-11T11:53:14.425Z
-Stopped at: Completed 03-03-PLAN.md
+Last session: 2026-07-11T12:11:38.595Z
+Stopped at: Completed 03-04-PLAN.md
 Resume file: None
