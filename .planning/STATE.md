@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-stopped_at: Completed 05-01-PLAN.md — polite okx.ai scraper + canned-response tests
-last_updated: "2026-07-11T15:49:32Z"
+stopped_at: Completed 05-02-PLAN.md — README (OPS-02) with verified commands + verbatim OKX ASP prompts
+last_updated: "2026-07-11T16:01:00Z"
 last_activity: 2026-07-11
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 16
-  completed_plans: 14
-  percent: 88
+  completed_plans: 15
+  percent: 94
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-07-10)
 ## Current Position
 
 Phase: 5 of 5 (scraper, hardening & submission kit)
-Plan: 05-01 complete (1 of 3); next 05-02 (README, OPS-02)
-Status: 05-01 complete — `--scrape`-gated okx.ai appState scraper with graceful degradation on every failure path (403/timeout/empty-SPA/changed-markup/missing-keys/bad-cast); 18 offline canned-fixture tests; default refresh still exits 0 on 272 census rows; full suite 314 green, scoring coverage 100%. INDX-04 + OPS-03 (scraper portion) complete.
+Plan: 05-02 complete (2 of 3); next 05-03 (submission kit + language gate, Wave 2)
+Status: 05-02 complete — README.md (OPS-02) at the repo root: 11 locked sections in order, both OKX ASP agent prompts quoted VERBATIM, every command transcribed byte-for-byte from a prior-phase/research-verified source, 5 env vars documented with placeholders, the make_verifier/PaymentVerifier/UnconfiguredVerifier SDK-swap seam named, all HUMAN-ONLY stop conditions marked, zero banned vocabulary. OPS-02 complete.
 Last activity: 2026-07-11
 
-Progress: [████████░░] 88% (14/16 plans)
+Progress: [█████████░] 94% (15/16 plans)
 
 ## Performance Metrics
 
@@ -69,6 +69,7 @@ Progress: [████████░░] 88% (14/16 plans)
 | Phase 04-x402-payment-layer P01 | 17 min | 2 tasks | 4 files |
 | Phase 04-x402-payment-layer P02 | 7 min | 2 tasks | 2 files |
 | Phase 05-scraper-hardening-submission-kit P01 | 20 min | 2 tasks | 7 files |
+| Phase 05-scraper-hardening-submission-kit P02 | 9 min | 1 task | 4 files |
 
 ## Accumulated Context
 
@@ -95,6 +96,7 @@ Recent decisions affecting current work:
 - [Phase 04-02]: gate tests are hermetic via create_app(payment_config=) injection (never env/monkeypatch) and assert BOTH /mcp and /mcp/ (Pitfall 8); async verifier methods tested with asyncio.run (no pytest-asyncio dependency added)
 - [Phase 05-01]: okx.ai scraper enriches sold/rating/price/positive_pct only and leaves category DERIVED (Option B, category_source unchanged) — a raw okx.ai category code can never reach a reason string and Phase 2 percentiles never shift; the category_source='listed' seam stays available but unused (v2)
 - [Phase 05-01]: the merged --scrape batch persists as one source='census' snapshot (per-record scrape provenance deferred to v2/INDX-05) so the 0/1/2 exit contract and the test_refresh aggregate invariant (snapshots.source != 'census' == 0) both hold; scrape_agents swallows every failure and returns [] so a scrape can never change refresh's exit code (proven by the 403-MockTransport exit-0/272 test)
+- [Phase 05-02]: README is a verified-commands-only doc — every command is transcribed byte-for-byte from a command proven in an earlier phase or 05-RESEARCH.md; the H1 intro block is locked section 1 (what-it-is + 4 tools) and the other 10 sections are ## headings in CONTEXT order; both OKX ASP prompts sit each in their own fenced ```text block so the exact string copy-pastes without smart-quote/punctuation drift; secrets are placeholder-only (0x0000...0000, <host>)
 
 ### Pending Todos
 
@@ -117,6 +119,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-07-11T15:49:32Z
-Stopped at: Completed 05-01-PLAN.md — polite okx.ai scraper + canned-response tests (INDX-04, OPS-03 scraper portion)
+Last session: 2026-07-11T16:01:00Z
+Stopped at: Completed 05-02-PLAN.md — README (OPS-02): verified commands + verbatim OKX ASP prompts + marked human-only steps
 Resume file: None
