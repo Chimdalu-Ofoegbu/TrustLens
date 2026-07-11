@@ -2,8 +2,10 @@
 .planning
 .claude
 .venv
-__pycache__
-*.py[cod]
+# **/ required: bare patterns match only at the context root, so nested
+# bytecode inside the COPY'd packages would ship in the image (WR-02).
+**/__pycache__
+**/*.py[cod]
 .pytest_cache
 .coverage
 htmlcov
