@@ -17,6 +17,7 @@ import base64
 import json
 import logging
 import os
+import re
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from typing import Any, Mapping, Protocol
@@ -31,6 +32,17 @@ PLACEHOLDER_PAY_TO = "0x0000000000000000000000000000000000000000"
 XLAYER_USDT = "0x779ded0c9e1022225f8e0630b35a9b54be713736"
 USDT_DECIMALS = 6
 MAX_BODY_BYTES = 64 * 1024  # tool-call bodies are <1 KiB; cap DoS buffering
+
+# TRUSTLENS_PRICE_USDT grammar: plain decimal or scientific, no sign, no
+# whitespace, no PEP-515 underscore grouping. Decimal() ALONE would silently
+# accept " 0.01 ", "+0.01", and "1_000" (as one thousand) - operator typos that
+# must fail loudly at startup, not misprice every call. Anchored fullmatch so a
+# stray newline/space in a .env is rejected instead of stripped-and-accepted.
+_PRICE_RE = re.compile(r"[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?")
+# Sanity ceiling on the configured price (human USDT units). 0.01 is the spec
+# price; anything above 1,000,000 USDT/call is a misconfiguration, not a
+# business decision - reject rather than emit a ~7+ digit atomic amount.
+MAX_PRICE_USDT = Decimal("1000000")
 
 # x402 v2 HTTP transport header names (spec: coinbase/x402 transports-v2/http.md)
 HDR_PAYMENT_REQUIRED = b"PAYMENT-REQUIRED"
@@ -98,10 +110,20 @@ def usdt_to_atomic(price: str, decimals: int = USDT_DECIMALS) -> str:
     """Convert a human decimal USDT string to an atomic-unit string.
 
     "0.01" -> "10000" (6 decimals). Exact Decimal arithmetic; rejects
-    non-finite, non-positive, and sub-atomic precision inputs.
+    non-finite, non-positive, and sub-atomic precision inputs. The accepted
+    grammar is deliberately strict (``[0-9]+(.[0-9]+)?([eE][+-]?[0-9]+)?``):
+    whitespace-padded ("  0.01  ", "0.01\\n"), sign-prefixed ("+0.01"), and
+    PEP-515 underscore-grouped ("1_000") forms are REJECTED rather than
+    silently normalized by Decimal(), because this value is a trusted-but-
+    typo-prone env var (TRUSTLENS_PRICE_USDT) read once at startup. Values
+    above MAX_PRICE_USDT are rejected as misconfiguration.
     """
     if not isinstance(price, str):
         raise TypeError(f"price must be a string, got {type(price).__name__}")
+    # Grammar gate BEFORE Decimal: fullmatch so no surrounding whitespace,
+    # sign, or underscore-grouping slips through Decimal's lenient parser.
+    if not _PRICE_RE.fullmatch(price):
+        raise ValueError(f"invalid price format: {price!r}")
     try:
         d = Decimal(price)
     except InvalidOperation as exc:
@@ -110,6 +132,11 @@ def usdt_to_atomic(price: str, decimals: int = USDT_DECIMALS) -> str:
         raise ValueError(f"price must be finite: {price!r}")
     if d <= 0:
         raise ValueError(f"price must be positive: {price!r}")
+    if d > MAX_PRICE_USDT:
+        raise ValueError(
+            f"price {price!r} exceeds the sanity ceiling of "
+            f"{MAX_PRICE_USDT} USDT (misconfiguration)"
+        )
     atomic = d.scaleb(decimals)  # shift exponent by +decimals, exactly
     if atomic != atomic.to_integral_value():
         raise ValueError(

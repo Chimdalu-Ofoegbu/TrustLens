@@ -14,6 +14,7 @@ import pytest
 from server.payments import (
     FREE_METHODS,
     MAX_BODY_BYTES,
+    MAX_PRICE_USDT,
     PLACEHOLDER_PAY_TO,
     XLAYER_USDT,
     MockVerifier,
@@ -47,20 +48,47 @@ def test_usdt_to_atomic_conversions(price, expected):
     assert usdt_to_atomic(price) == expected
 
 
-# 2. Rejections: non-finite / non-positive / sub-atomic / unparseable.
+# 2. Rejections: non-finite / non-positive / sub-atomic / unparseable, PLUS the
+#    WR-02 grammar tightening. The env-var price (TRUSTLENS_PRICE_USDT) is read
+#    once at startup, so a raised ValueError is the correct fail-loud behavior on
+#    an operator typo. Decimal() ALONE would silently accept the whitespace/sign/
+#    underscore forms below; _PRICE_RE.fullmatch() rejects them BEFORE Decimal so
+#    "1_000" is never misread as one thousand USDT and " 0.01 " never strips-and-
+#    passes. "1e1000"/"2000000" trip the MAX_PRICE_USDT sanity ceiling.
 @pytest.mark.parametrize(
     "bad",
-    ["0.0000001", "-0.01", "0", "abc", "NaN", "Infinity", "-Infinity", ""],
+    [
+        # non-finite / non-positive / sub-atomic / unparseable (original set)
+        "0.0000001", "-0.01", "0", "abc", "NaN", "Infinity", "-Infinity", "",
+        # WR-02: whitespace-padded (newline/leading/trailing/internal)
+        "0.01\n", " 0.01 ", "  0.01", "0.01  ", "0. 01",
+        # WR-02: sign-prefixed
+        "+0.01", "+1",
+        # WR-02: PEP-515 underscore grouping (Decimal would accept as 1000)
+        "1_000", "1_0",
+        # WR-02: magnitude ceiling (> MAX_PRICE_USDT = 1,000,000 USDT)
+        "1e1000", "2000000", "1000001",
+    ],
 )
 def test_usdt_to_atomic_rejections(bad):
     # "NaN"/"Infinity"/"-Infinity" parse as VALID Decimals - the is_finite()
     # check is what catches them (a plain try/except would let them through).
+    # The grammar/ceiling additions above all surface as ValueError too, so the
+    # single raises-clause covers the whole rejection contract.
     with pytest.raises(ValueError):
         usdt_to_atomic(bad)
     # Separate assert: a float (not str) is a TypeError - the signature demands
     # an exact string so float drift can never enter the amount.
     with pytest.raises(TypeError):
         usdt_to_atomic(0.01)  # type: ignore[arg-type]
+
+
+# 2b. WR-02 ceiling boundary: exactly MAX_PRICE_USDT is still ACCEPTED (the
+#     ceiling rejects strictly-greater), while the golden low-end path is
+#     unchanged. Guards against an off-by-one that would reject the boundary.
+def test_usdt_to_atomic_ceiling_boundary():
+    assert usdt_to_atomic(str(MAX_PRICE_USDT)) == "1000000000000"  # 1e6 * 1e6
+    assert usdt_to_atomic("0.01") == "10000"  # golden low-end untouched
 
 
 # 3. Requirements JSON is byte-stable and pure ASCII.
