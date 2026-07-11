@@ -29,7 +29,7 @@ findings:
   warning: 2
   info: 7
   total: 9
-status: issues_found
+status: clean
 ---
 
 # Phase 3: Code Review Report
@@ -37,7 +37,7 @@ status: issues_found
 **Reviewed:** 2026-07-11T12:51:38Z
 **Depth:** standard
 **Files Reviewed:** 20
-**Status:** issues_found
+**Status:** clean — both warnings fixed 2026-07-11 (`cae567f`, `7a9742a`); IN-01..IN-07 remain open, deferred to the Phase 5 hardening sweep
 
 ## Summary
 
@@ -54,6 +54,8 @@ The security core holds up well:
 
 Two Warnings (a weakened defense-in-depth control and a build-context hygiene gap) and seven Info items follow. No Critical findings.
 
+**Fix pass (2026-07-11):** both warnings fixed — WR-01 in `cae567f`, WR-02 in `7a9742a`; full suite green after each fix (230 passed, scoring coverage 100%). IN-01..IN-07 are intentionally left open for the Phase 5 hardening sweep.
+
 ## Warnings
 
 ### WR-01: Badge allowlist regex `$` anchor admits a trailing newline
@@ -67,6 +69,7 @@ _AGENT_ID = re.compile(r"[A-Za-z0-9_-]{1,32}\Z")
 if _AGENT_ID.fullmatch(agent_id):
 ```
 (`\Z` anchors at the true end of string; `fullmatch` removes the need for `^`.)
+**Status:** FIXED in `cae567f` — `\Z` + `fullmatch` applied in `server/app.py`; regression test `test_badge_newline_id_rejected_before_query` pins that `/badge/3345%0A.svg` serves the neutral N/A badge with zero DB calls (connect_ro spy).
 
 ### WR-02: `.dockerignore` bare patterns miss nested `__pycache__` — local bytecode baked into the image
 
@@ -77,8 +80,11 @@ if _AGENT_ID.fullmatch(agent_id):
 **/__pycache__
 **/*.py[cod]
 ```
+**Status:** FIXED in `7a9742a` — `**/` prefixes applied with an explanatory comment. Engine-less verification: a `.dockerignore` simulation over the real tree yields 27 context files with zero `__pycache__`/`*.py[cod]` entries and every COPY'd source present; `docker compose config --quiet` exits 0.
 
 ## Info
+
+_All seven Info items below remain open — documented for the Phase 5 hardening sweep._
 
 ### IN-01: Dockerfile layer ordering re-installs all dependencies on every source change
 
@@ -142,3 +148,4 @@ if _AGENT_ID.fullmatch(agent_id):
 _Reviewed: 2026-07-11T12:51:38Z_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_
+_Warnings fixed: 2026-07-11 (`cae567f`, `7a9742a`) — 230 passed, scoring coverage 100% after fixes_
