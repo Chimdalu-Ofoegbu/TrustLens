@@ -275,7 +275,9 @@ def test_cli_main(tmp_path, monkeypatch):
     # DEFAULT_CSV is repo-relative; anchor cwd so the bare default resolves.
     monkeypatch.chdir(REPO_ROOT)
     db = tmp_path / "cli.db"
-    assert main(["--db", str(db)]) == 0
+    assert main(
+        ["--db", str(db), "--web-out", str(tmp_path / "index.html")]
+    ) == 0
     conn = sqlite3.connect(db)
     conn.row_factory = sqlite3.Row
     try:
@@ -304,7 +306,8 @@ def test_cli_dateless_filename_returns_2(tmp_path):
     assert main(["--csv", str(mini), "--db", str(db)]) == 2
     # An explicit --captured-at unblocks the same invocation.
     assert main(
-        ["--csv", str(mini), "--db", str(db), "--captured-at", SEED_TS]
+        ["--csv", str(mini), "--db", str(db), "--captured-at", SEED_TS,
+         "--web-out", str(tmp_path / "index.html")]
     ) == 0
 
 

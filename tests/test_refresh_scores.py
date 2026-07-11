@@ -26,7 +26,8 @@ EXPECTED_GRADE_ROWS = [
 
 def _run(db_path, *extra):
     """In-process CLI call over the real census (mirrors test_refresh.py)."""
-    return main(["--csv", str(CSV_PATH), "--db", str(db_path), *extra])
+    return main(["--csv", str(CSV_PATH), "--db", str(db_path),
+                 "--web-out", str(Path(db_path).parent / "index.html"), *extra])
 
 
 def _dump(db_path):
