@@ -33,7 +33,7 @@ Endpoints:
 python -m pytest
 ```
 
-The full suite runs green (314 passing) with a ≥90% coverage gate scoped to `scoring/` (currently 100%).
+The full suite runs green (320 passing) with a ≥90% coverage gate scoped to `scoring/` (currently 100%).
 
 **Footgun:** the coverage gate (`--cov=scoring`) always applies, so any *subset* run that skips the scoring tests reports 0% and fails the gate. Run partial selections with `--no-cov`. For example, the scraper's offline canned-response tests:
 
