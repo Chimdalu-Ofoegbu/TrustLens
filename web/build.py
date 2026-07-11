@@ -289,14 +289,14 @@ $rows
 <h2>About the methodology</h2>
 <p>TrustScore is a 0–100 score computed by a deterministic, versioned formula over public OKX.AI marketplace data. The same data snapshot always produces the same score. There is no manual adjustment and no generated prose — and agents cannot pay to alter scores.</p>
 <table class="m-table">
-<thead><tr><th scope="col">Component</th><th scope="col">Weight</th><th scope="col">What it measures</th></tr></thead>
+<thead><tr><th>Component</th><th>Weight</th><th>What it measures</th></tr></thead>
 <tbody>
 $components_rows
 </tbody>
 </table>
 <p>When a component has no evidence for an agent, the remaining weights are renormalized rather than guessed.</p>
 <table class="m-table">
-<thead><tr><th scope="col">Grade</th><th scope="col">Score range</th><th scope="col">Meaning</th></tr></thead>
+<thead><tr><th>Grade</th><th>Score range</th><th>Meaning</th></tr></thead>
 <tbody>
 $bands_rows
 </tbody>
