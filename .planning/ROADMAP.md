@@ -13,7 +13,7 @@ TrustLens goes from a 272-agent census CSV to a live, paid A2MCP trust-score ser
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation & Data Indexer** - Census CSV parsed edge-case-safe into SQLite on a pinned scaffold; category source resolved (completed 2026-07-10)
-- [ ] **Phase 2: Scoring Engine** - Deterministic 0–100 TrustScore + A–F grade with neutral per-component reasons, ≥90% coverage on scoring/
+- [x] **Phase 2: Scoring Engine** - Deterministic 0–100 TrustScore + A–F grade with neutral per-component reasons, ≥90% coverage on scoring/ (completed 2026-07-11)
 - [ ] **Phase 3: MCP Server & Leaderboard** - 4 MCP tools + static leaderboard + /healthz served free from one dockerized port
 - [ ] **Phase 4: x402 Payment Layer** - x402 v2 402-challenge gate with pluggable mock verifier; OKX pre-registration check passes locally
 - [ ] **Phase 5: Scraper, Hardening & Submission Kit** - Timeboxed polite scraper, full test suite, complete README, rehearsed demo/listing materials
@@ -49,7 +49,7 @@ Plans:
 
 Plans:
 - [x] 02-01-PLAN.md — Scoring core: pure component/engine functions, golden + banned-vocab tests, ≥90% coverage gate (wave 1)
-- [ ] 02-02-PLAN.md — Persistence: scores DDL, compute_all, refresh wiring + end-to-end determinism proof (wave 2)
+- [x] 02-02-PLAN.md — Persistence: scores DDL, compute_all, refresh wiring + end-to-end determinism proof (wave 2)
 
 ### Phase 3: MCP Server & Leaderboard
 **Goal**: Anyone can call all 4 trust tools over MCP and browse the ranked leaderboard — free and ungated — from a single dockerized port
@@ -93,7 +93,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Data Indexer | 4/4 | Complete    | 2026-07-10 |
-| 2. Scoring Engine | 0/2 | Planned | - |
+| 2. Scoring Engine | 2/2 | Complete   | 2026-07-11 |
 | 3. MCP Server & Leaderboard | 0/TBD | Not started | - |
 | 4. x402 Payment Layer | 0/TBD | Not started | - |
 | 5. Scraper, Hardening & Submission Kit | 0/TBD | Not started | - |
