@@ -15,7 +15,16 @@ findings:
   warning: 2
   info: 4
   total: 6
-status: issues_found
+warnings_resolved: 2
+info_open: 4
+status: clean
+resolution:
+  fixed_at: 2026-07-11
+  fixed:
+    - "WR-01 (commit 5f95a37): documented the deliberate FREE_METHODS widening; membership unchanged"
+    - "WR-02 (commit 1bd4146): tightened price grammar + magnitude ceiling; golden path unchanged"
+  open:
+    - "IN-01..IN-04: documentation/traceability notes deferred to the Phase 5 hardening sweep"
 ---
 
 # Phase 4: Code Review Report
@@ -23,7 +32,7 @@ status: issues_found
 **Reviewed:** 2026-07-11
 **Depth:** standard
 **Files Reviewed:** 6
-**Status:** issues_found
+**Status:** clean (both WARNINGs fixed 2026-07-11; INFOs IN-01..04 remain documented/open for the Phase 5 hardening sweep)
 
 ## Summary
 
@@ -68,6 +77,14 @@ No BLOCKER-severity defects were found.
 
 ### WR-01: FREE_METHODS silently widened beyond the locked CONTEXT set
 
+**Status:** FIXED 2026-07-11 (commit 5f95a37) — the widening is now non-silent:
+a detailed comment above `FREE_METHODS` in `server/payments.py` explains each
+method group, the Inspector-bootstrap rationale, and the SAFE-ONLY-WHILE-EMPTY
+caveat on the discovery lists; `test_free_methods_allowlist` now splits the set
+into CONTEXT-locked vs research-added members with an audit-trail comment so the
+deviation is visible from the test alone. FREE_METHODS membership is UNCHANGED
+(all 283 tests stay green) — this was a traceability fix, not a behavior change.
+
 **File:** `server/payments.py:43-50`
 **Issue:** 04-CONTEXT (line 28) locks the FREE set to `initialize`,
 `notifications/*`, and `tools/list`, with the explicit note that gating is "a
@@ -101,6 +118,16 @@ FREE_METHODS = frozenset({
 ```
 
 ### WR-02: usdt_to_atomic accepts whitespace-padded, sign-prefixed, and underscore-grouped price strings
+
+**Status:** FIXED 2026-07-11 (commit 1bd4146) — `usdt_to_atomic` now gates the
+input through `_PRICE_RE.fullmatch()` (`[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?`)
+BEFORE handing it to `Decimal`, rejecting `"  0.01  "`, `"0.01\n"`, `"+0.01"`,
+and `"1_000"` with a `ValueError`; a `MAX_PRICE_USDT = Decimal("1000000")`
+sanity ceiling rejects absurd magnitudes (`"1e1000"`, `> 1,000,000 USDT`). The
+golden conversions are unchanged (`"0.01"→"10000"`, `"0.001"→"1000"`,
+`"1"→"1000000"`, plus `"1e2"`), pinned by the extended
+`test_usdt_to_atomic_rejections` matrix and the new
+`test_usdt_to_atomic_ceiling_boundary`.
 
 **File:** `server/payments.py:97-118`
 **Issue:** `Decimal(price)` silently accepts inputs the test matrix never
