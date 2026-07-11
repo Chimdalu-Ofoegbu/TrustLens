@@ -22,8 +22,7 @@ dev = [
 ]
 
 [tool.setuptools]
-# Phase 3 adds "server" to this list
-packages = ["indexer", "scoring"]
+packages = ["indexer", "scoring", "server", "web"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

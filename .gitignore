@@ -19,6 +19,7 @@ data/cache/
 *.sqlite3
 *.db-wal
 *.db-shm
+web/dist/
 
 # OS
 .DS_Store

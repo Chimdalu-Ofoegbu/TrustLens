@@ -10,13 +10,15 @@ the YYYY-MM-DD date in the csv filename (seed baseline 2026-07-10T00:00:00Z);
 tests pass it explicitly. Seed data never falls back to the wall clock.
 
 Exit codes: 0 success; 1 missing/unreadable/undecodable csv (data problem);
-2 captured-at underivable or database failure (environment problem).
+2 captured-at underivable, database failure, or leaderboard build failure
+(environment problem).
 """
 from __future__ import annotations
 
 import argparse
 import csv
 import logging
+import os
 import re
 import sqlite3
 import sys
@@ -28,13 +30,23 @@ from indexer.census import load_census
 from indexer.db import connect, init_db, insert_snapshot, upsert_agent
 from indexer.models import AgentRecord
 from scoring import SCORE_VERSION, compute_all
+from web.build import build as web_build
 
 log = logging.getLogger("indexer.refresh")
 
-__all__ = ["DEFAULT_CSV", "DEFAULT_DB", "RefreshSummary", "persist", "refresh", "main"]
+__all__ = [
+    "DEFAULT_CSV",
+    "DEFAULT_DB",
+    "DEFAULT_WEB_OUT",
+    "RefreshSummary",
+    "persist",
+    "refresh",
+    "main",
+]
 
 DEFAULT_CSV = Path("data/okx-marketplace-census-2026-07-10.csv")
 DEFAULT_DB = Path("data/trustlens.db")
+DEFAULT_WEB_OUT = Path("web/dist/index.html")
 
 _FILENAME_DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
 
@@ -71,6 +83,7 @@ def _persist_records(
     captured_at: str,
     source: str = "census",
     generated_at: str | None = None,
+    web_out: Path | None = None,
 ) -> RefreshSummary:
     """DB stage of a refresh: open, init, persist atomically, summarize.
 
@@ -90,6 +103,14 @@ def _persist_records(
         "scores computed: %d scored, %d not rated, version=%s",
         scored, not_rated, SCORE_VERSION,
     )
+    if web_out is not None:
+        size = web_build(
+            db_path, web_out,
+            base_url=os.environ.get("TRUSTLENS_BASE_URL", "http://localhost:8000"),
+        )
+        log.info(
+            "leaderboard built: %s (%d agents, %d bytes)", web_out, len(records), size
+        )
     return RefreshSummary(
         agents=len(records),
         snapshots_appended=len(records),
@@ -104,11 +125,13 @@ def refresh(
     captured_at: str,
     source: str = "census",
     generated_at: str | None = None,
+    web_out: Path | None = None,
 ) -> RefreshSummary:
     """Load the census; persist agents + snapshots + scores in one atomic transaction."""
     records, warnings = load_census(csv_path)
     return _persist_records(
-        db_path, records, warnings, captured_at, source, generated_at=generated_at
+        db_path, records, warnings, captured_at, source,
+        generated_at=generated_at, web_out=web_out,
     )
 
 
@@ -149,6 +172,10 @@ def main(argv: list[str] | None = None) -> int:
         help="ISO-8601 UTC timestamp stamped on score rows as generated_at "
         "(default: same as captured-at, keeping reruns byte-identical)",
     )
+    parser.add_argument(
+        "--web-out", type=Path, default=DEFAULT_WEB_OUT,
+        help=f"leaderboard html output path (default: {DEFAULT_WEB_OUT})",
+    )
     args = parser.parse_args(argv)
 
     csv_path: Path = args.csv
@@ -182,7 +209,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         summary = _persist_records(
             args.db, records, field_warnings, captured_at,
-            generated_at=args.generated_at,
+            generated_at=args.generated_at, web_out=args.web_out,
         )
     except (OSError, sqlite3.Error) as exc:
         log.error("database error at %s: %s", args.db, exc)
