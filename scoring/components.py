@@ -10,11 +10,11 @@ Every component returns the SAME frozen dict shape:
 - ``flagged`` is False everywhere except the rating-credibility
   thin-perfect case (brief verbatim: "5.0 with <5 sales = low confidence,
   flagged not accused").
-- Reason strings are fixed TEMPLATES interpolating numbers and category
-  bucket names ONLY. Agent names, taglines, or any other listing text
-  NEVER enter a template: listing text is attacker-influenceable, and
-  outward wording about named vendors is a defamation surface, not a
-  style choice.
+- Reason strings are fixed TEMPLATES interpolating numbers and canonical
+  category bucket names ONLY (enforced against CANONICAL_CATEGORIES).
+  Agent names, taglines, or any other listing text NEVER enter a
+  template: listing text is attacker-influenceable, and outward wording
+  about named vendors is a defamation surface, not a style choice.
 - All checks on rating/positive_pct/price_usdt use ``is None`` identity —
   never truthiness — because 0.0 is real data for each of those fields.
 
@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import math
 
+from indexer.category import CATEGORIES
 from scoring.stats import RATING_EXPECTED_SALES, Stats
 
 SOLD_REF = 500          # volume log anchor: >= 500 units -> 100
@@ -33,6 +34,12 @@ THIN_SALES = 5          # brief: "5.0 with <5 sales = low confidence"
 CRED_FLOOR = 0.30       # thin evidence -> neutral-low credibility, never punitive-zero
 MIN_CATEGORY_PRICED = 5  # below this, price percentile falls back to marketplace pool
 PRICE_DEV_SPAN = 45     # price subscore = 100 - 45 * deviation (range 55..100)
+# Reason templates may interpolate ONLY these fixed bucket names (single
+# source of truth: indexer.category, a pure module — no I/O, no wall clock).
+# Any other category value — e.g. a Phase 5 'listed' category scraped from a
+# marketplace page — is listing-influenced text and must never render into
+# outward reason text.
+CANONICAL_CATEGORIES = frozenset(CATEGORIES)
 WEIGHTS = {
     "sales_volume_velocity": 0.30,
     "review_signal_ratio":   0.20,
@@ -184,7 +191,9 @@ def c_price_vs_category(price_usdt: float | None, category: str, stats: Stats) -
     Price extremity is an observation, never a heavy penalty: the score
     spans [55, 100] by construction. Categories with fewer than
     MIN_CATEGORY_PRICED priced agents fall back to the marketplace pool
-    (real trigger: "Other Services", 3 priced).
+    (real trigger: "Other Services", 3 priced), as does any category
+    outside CANONICAL_CATEGORIES — only the fixed bucket vocabulary may
+    render into reason text, never an arbitrary category string.
     """
     if price_usdt is None:
         return {
@@ -197,9 +206,9 @@ def c_price_vs_category(price_usdt: float | None, category: str, stats: Stats) -
         }
     pool = stats.category_pools.get(category, ())
     label = category
-    if len(pool) < MIN_CATEGORY_PRICED:
+    if category not in CANONICAL_CATEGORIES or len(pool) < MIN_CATEGORY_PRICED:
         pool = stats.market_pool
-        label = "marketplace"
+        label = "marketplace"  # never render text outside the fixed vocabulary
     p = percentile(pool, price_usdt)
     deviation = abs(p - 0.5) * 2
     score = round(100 - PRICE_DEV_SPAN * deviation)

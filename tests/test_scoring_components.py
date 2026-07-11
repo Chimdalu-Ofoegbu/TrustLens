@@ -7,7 +7,9 @@ transcription is wrong - fix the code, never the anchor.
 """
 import pytest
 
+from indexer.category import CATEGORIES
 from scoring.components import (
+    CANONICAL_CATEGORIES,
     CRED_FLOOR,
     MIN_CATEGORY_PRICED,
     PRICE_DEV_SPAN,
@@ -306,6 +308,31 @@ def test_c4_small_category_falls_back_to_marketplace_pool():
 def test_c4_missing_category_key_falls_back_to_marketplace_pool():
     comp = c_price_vs_category(2.0, "Trading & Investing", POOL_STATS)
     assert "marketplace norm" in comp["reason"]
+
+
+def test_c4_canonical_set_is_the_nine_derived_buckets():
+    # Single source of truth: the reason-text allowlist IS indexer.category's
+    # bucket list — the "9 fixed category names" mitigation, enforced.
+    assert CANONICAL_CATEGORIES == frozenset(CATEGORIES)
+    assert len(CANONICAL_CATEGORIES) == 9
+
+
+def test_c4_non_canonical_category_never_renders_into_reason():
+    # WR-02 regression: a hostile category string must never reach outward
+    # reason text, even when its pool clears MIN_CATEGORY_PRICED — both the
+    # pool and the label fall back to the fixed marketplace vocabulary.
+    hostile = "totally-a-scam-category"
+    stats = Stats(
+        category_pools={hostile: (1.0, 2.0, 3.0, 4.0, 5.0)},  # >= MIN_CATEGORY_PRICED
+        market_pool=(0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0),
+        rated_hi=0,
+        total_hi=0,
+        rating_display_pct=0,
+    )
+    comp = c_price_vs_category(4.0, hostile, stats)
+    assert hostile not in comp["reason"]
+    assert "marketplace norm" in comp["reason"]
+    assert comp["benchmark"] == 3.0  # marketplace median — hostile pool never used
 
 
 # --- C5 listing_age_consistency --------------------------------------------------
