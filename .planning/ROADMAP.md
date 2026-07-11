@@ -66,7 +66,7 @@ Plans:
 Plans:
 - [x] 03-01-PLAN.md — Leaderboard page builder + shared badge SVG generator per approved UI-SPEC (wave 1)
 - [x] 03-02-PLAN.md — MCP server core: read-only DB layer + exactly 4 tools with TypedDict structured output (wave 1)
-- [ ] 03-03-PLAN.md — Refresh wiring: page auto-regenerates on `indexer.refresh`, packaging + gitignore (wave 2)
+- [x] 03-03-PLAN.md — Refresh wiring: page auto-regenerates on `indexer.refresh`, packaging + gitignore (wave 2)
 - [ ] 03-04-PLAN.md — One-port app composition: McpPathRewrite mount fix, /healthz, badge route, e2e + <500ms proof (wave 2)
 - [ ] 03-05-PLAN.md — Docker packaging + Inspector CLI runtime proof + full-suite phase gate (wave 3)
 

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-02-PLAN.md
-last_updated: "2026-07-11T11:38:05.799Z"
+stopped_at: Completed 03-03-PLAN.md
+last_updated: "2026-07-11T11:53:27.626Z"
 last_activity: 2026-07-11
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 11
-  completed_plans: 8
-  percent: 73
+  completed_plans: 9
+  percent: 82
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-07-10)
 ## Current Position
 
 Phase: 3 of 5 (mcp server & leaderboard)
-Plan: 2 of 5 complete
+Plan: 3 of 5 complete
 Status: Ready to execute
 Last activity: 2026-07-11
 
@@ -61,6 +61,7 @@ Progress: [██████░░░░] 64%
 | Phase 02-scoring-engine P02 | 13 min | 2 tasks | 6 files |
 | Phase 03-mcp-server-leaderboard P01 | 11 min | 3 tasks | 5 files |
 | Phase 03-mcp-server-leaderboard P02 | 12 min | 3 tasks | 5 files |
+| Phase 03-mcp-server-leaderboard P03 | 10 min | 2 tasks tasks | 6 files files |
 
 ## Accumulated Context
 
@@ -78,6 +79,7 @@ Recent decisions affecting current work:
 - [Phase 02-01]: scoring/ public surface frozen at SCORE_VERSION 1.0.0 with goldens + grade/confidence distributions pinned over the real 272-agent census — any formula/weight/band/template change now fails golden tests and requires a SCORE_VERSION bump plus re-pin (research-locked policy)
 - [Phase 03-01]: data-v sort values reuse fixed-decimal display formatting for prices so scientific notation never appears in the leaderboard page
 - [Phase 03-02]: MCP tool error paths all route through one _err JSON serializer (ToolError-only channel); explicit per-tool try/except guards keep FastMCP schema derivation on pristine annotated functions
+- [Phase 03-03]: web_out=None skip-sentinel — page-build side effect is a parameter; only the CLI boundary applies the web/dist/index.html default, keeping library refresh() calls and the test suite from writing into the repo tree
 
 ### Pending Todos
 
@@ -99,6 +101,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-07-11T11:37:51.836Z
-Stopped at: Completed 03-02-PLAN.md
+Last session: 2026-07-11T11:53:14.425Z
+Stopped at: Completed 03-03-PLAN.md
 Resume file: None

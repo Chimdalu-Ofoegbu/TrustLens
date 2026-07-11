@@ -39,7 +39,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **WEB-01**: Single static HTML page (inline CSS/JS, no framework) served by FastAPI at `/` — ranked table of all indexed agents with TrustScore + grade badges, sortable, category filter, loads in <2s
 - [x] **WEB-02**: Page includes "About the methodology" section and a "TrustLens Verified" badge embed snippet
-- [ ] **WEB-03**: Page content auto-regenerates from SQLite on indexer refresh
+- [x] **WEB-03**: Page content auto-regenerates from SQLite on indexer refresh
 
 ### Ops & Tests
 
@@ -102,7 +102,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PAYX-03 | Phase 4 | Pending |
 | WEB-01 | Phase 3 | Complete |
 | WEB-02 | Phase 3 | Complete |
-| WEB-03 | Phase 3 | Pending |
+| WEB-03 | Phase 3 | Complete |
 | OPS-01 | Phase 3 | Pending |
 | OPS-02 | Phase 5 | Pending |
 | OPS-03 | Phase 5 | Pending |
