@@ -1,4 +1,4 @@
-"""Score persistence: compute every agent's card and rewrite the scores table.
+"""Score persistence: compute every currently-listed agent's card and rewrite the scores table.
 
 The only scoring module that touches sqlite3. Never commits — the caller
 (indexer.refresh) wraps agents+snapshots+scores in one atomic transaction.
@@ -21,14 +21,27 @@ INSERT_SCORE = (
 def compute_all(
     conn: sqlite3.Connection, generated_at: str, data_as_of: str
 ) -> tuple[int, int]:
-    """Score every agent and rewrite the scores table. Returns (scored, not_rated).
+    """Score agents observed in the current capture; rewrite the scores table.
+
+    Returns (scored, not_rated).
+
+    Only rows with last_seen = data_as_of are scored: agents are never
+    deleted (the pipeline only upserts), so an agent absent from the
+    current census keeps a stale agents row — re-scoring it would stamp a
+    data_as_of from a snapshot in which the agent was never observed.
+    The filter also makes DELETE+INSERT genuinely self-cleaning: delisted
+    agents leave no score rows at all, and benchmark stats are built from
+    the current capture only.
 
     History = distinct capture times: the real DB holds duplicate snapshot
     rows per capture time by design — raw row counts would fabricate history.
-    DELETE+INSERT is self-cleaning: agents absent from a future census leave
-    no stale score rows.
     """
-    rows = [dict(r) for r in conn.execute("SELECT * FROM agents ORDER BY id")]
+    rows = [
+        dict(r)
+        for r in conn.execute(
+            "SELECT * FROM agents WHERE last_seen = ? ORDER BY id", (data_as_of,)
+        )
+    ]
     snap = dict(conn.execute(
         "SELECT agent_id, COUNT(DISTINCT captured_at) FROM snapshots GROUP BY agent_id"
     ))

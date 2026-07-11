@@ -149,6 +149,31 @@ def test_recompute_is_byte_identical_and_self_cleaning(seeded):
     assert first == second
 
 
+def test_delisted_agent_is_not_rescored_with_false_provenance(seeded, records):
+    """WR-01 regression: an agent absent from the current capture keeps its
+    agents row (the pipeline only upserts) but must NOT be re-scored — a
+    score row would assert a data_as_of from a snapshot the agent was never
+    observed in."""
+    conn = seeded
+    delisted = "3118"
+    survivors = [r for r in records if r.id != delisted]
+    with conn:
+        persist(conn, survivors, NEXT_TS)  # next census: one agent delisted
+        assert compute_all(conn, NEXT_TS, NEXT_TS) == (120, 151)
+    # The stale agents row survives, still pinned to the old capture...
+    assert conn.execute(
+        "SELECT last_seen FROM agents WHERE id = ?", (delisted,)
+    ).fetchone()[0] == SEED_TS
+    # ...but self-cleaning holds: no score row, no fabricated provenance.
+    assert conn.execute(
+        "SELECT COUNT(*) FROM scores WHERE agent_id = ?", (delisted,)
+    ).fetchone()[0] == 0
+    count, lo, hi = conn.execute(
+        "SELECT COUNT(*), MIN(data_as_of), MAX(data_as_of) FROM scores"
+    ).fetchone()
+    assert (count, lo, hi) == (271, NEXT_TS, NEXT_TS)
+
+
 # --- transaction contract ----------------------------------------------------
 
 def test_rollback_leaves_scores_unchanged(seeded):
