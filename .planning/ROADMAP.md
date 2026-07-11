@@ -93,7 +93,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Data Indexer | 4/4 | Complete    | 2026-07-10 |
-| 2. Scoring Engine | 2/2 | Complete   | 2026-07-11 |
+| 2. Scoring Engine | 2/2 | Complete    | 2026-07-11 |
 | 3. MCP Server & Leaderboard | 0/TBD | Not started | - |
 | 4. x402 Payment Layer | 0/TBD | Not started | - |
 | 5. Scraper, Hardening & Submission Kit | 0/TBD | Not started | - |
