@@ -17,9 +17,16 @@ from fastapi.testclient import TestClient
 
 from server.app import create_app
 from server.db import connect_ro
+from server.payments import PaymentConfig
 from web.build import build
 
-H = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream"}
+H = {
+    "Content-Type": "application/json",
+    "Accept": "application/json, text/event-stream",
+    # Phase 4: mock payment token — any non-empty value verifies under
+    # PaymentConfig(mock=True); free methods ignore it, tools/call consumes it.
+    "PAYMENT-SIGNATURE": "demo-mock-token",
+}
 
 EXPECTED_TOOLS = [
     "category_leaderboard",
@@ -85,7 +92,12 @@ def static_dir(tmp_path_factory, real_db):
 
 @pytest.fixture()
 def client(static_dir, real_db):
-    with TestClient(create_app(db_path=real_db, static_dir=static_dir)) as c:
+    app = create_app(
+        db_path=real_db,
+        static_dir=static_dir,
+        payment_config=PaymentConfig(mock=True),  # Phase 4: mock-paid e2e
+    )
+    with TestClient(app) as c:
         yield c  # `with` = lifespan runs (Pitfall 2)
 
 
@@ -225,7 +237,11 @@ def test_not_found_over_http(client):
 # 6. healthz 503 contract (MCPS-03 / STRIDE T-03-14): fixed body, no leak.
 def test_healthz_503_when_db_missing(tmp_path, static_dir):
     with TestClient(
-        create_app(db_path=tmp_path / "missing.db", static_dir=static_dir)
+        create_app(
+            db_path=tmp_path / "missing.db",
+            static_dir=static_dir,
+            payment_config=PaymentConfig(),  # hermetic: never read os.environ
+        )
     ) as c:
         r = c.get("/healthz")
     assert r.status_code == 503

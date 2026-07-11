@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from fastmcp.utilities.lifespan import combine_lifespans
 
 from server.db import DEFAULT_DB, connect_ro
+from server.payments import PaymentConfig, X402Middleware
 from server.tools import mcp
 from web.badge import badge_svg
 
@@ -51,6 +52,7 @@ class McpPathRewrite:
 def create_app(
     db_path: str | Path = DEFAULT_DB,
     static_dir: str | Path = DEFAULT_STATIC,
+    payment_config: PaymentConfig | None = None,
 ) -> FastAPI:
     """Build the one-port TrustLens app (PoC-verified V3 composition).
 
@@ -58,6 +60,11 @@ def create_app(
     preserve the verified behavior. The module-level ``mcp`` tools keep
     reading ``server.db.DEFAULT_DB`` regardless — ``db_path`` parameterizes
     ONLY /healthz and the badge route.
+
+    ``payment_config`` injects the x402 gate config for tests; ``None`` means
+    env-derived via ``PaymentConfig.from_env()`` when the middleware stack
+    builds at startup (the mode banner and placeholder-payTo warning fire
+    there — proven in the live uvicorn log).
     """
     # Orchestrator-locked JSON response mode: plain application/json bodies,
     # still Streamable HTTP (verified Inspector-compatible; NOT the banned
@@ -156,8 +163,12 @@ def create_app(
     app.mount("/", StaticFiles(directory=static_dir, html=True), name="site")
 
     # Middleware always runs before routing, so adding after mounts is fine.
-    # Phase 4: add_middleware is LIFO — register X402Middleware AFTER this
-    # line so it runs BEFORE the rewrite and must match
-    # scope["path"].startswith("/mcp").
+    # add_middleware is LIFO: X402Middleware, registered AFTER McpPathRewrite,
+    # runs OUTERMOST and therefore sees RAW paths — both /mcp and /mcp/. Its
+    # prefix predicate (path == "/mcp" or path.startswith("/mcp/")) is what
+    # makes the bare OKX pre-registration curl (POST /mcp, no body) answer
+    # 402; an exact-match gate provably fails it with 400 (04-RESEARCH
+    # negative proof). Kwargs pass through Starlette to X402Middleware.__init__.
     app.add_middleware(McpPathRewrite)
+    app.add_middleware(X402Middleware, config=payment_config)
     return app
