@@ -1,5 +1,19 @@
-# Environment / secrets
+# Environment / secrets — never commit real values (this is a public repo).
+# .env holds the real wallet address + OKX API creds at deploy time.
 .env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+*.keystore
+*.secret
+id_rsa
+id_ed25519
+secrets.json
+credentials.json
+wallet.json
 
 # Python
 __pycache__/
