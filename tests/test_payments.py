@@ -18,6 +18,7 @@ from server.payments import (
     PLACEHOLDER_PAY_TO,
     XLAYER_USDT,
     MockVerifier,
+    OkxFacilitatorVerifier,
     PaymentConfig,
     UnconfiguredVerifier,
     X402Middleware,
@@ -307,3 +308,143 @@ def test_jsonrpc_method_classification():
     # MAX_BODY_BYTES is the DoS body cap; its 413 wire behavior is exercised in
     # tests/test_payments_gate.py - pin the constant value here.
     assert MAX_BODY_BYTES == 64 * 1024
+
+
+# --- Real settlement (PAYX-04): OKX facilitator verifier at the same seam -----
+
+
+class _FakeFacilitator:
+    """Stand-in for the okxweb3-app-x402 facilitator client: async verify/settle,
+    no SDK or creds needed. `verify` returns an object exposing `.is_valid`."""
+
+    def __init__(self, valid=True, receipt=None, raise_on_verify=False):
+        self._valid = valid
+        self._receipt = (
+            receipt if receipt is not None else {"success": True, "transaction": "0xabc"}
+        )
+        self._raise = raise_on_verify
+
+    async def verify(self, payload, requirements):
+        if self._raise:
+            raise RuntimeError("facilitator down")
+        return type("_R", (), {"is_valid": self._valid})()
+
+    async def settle(self, payload, requirements):
+        return self._receipt
+
+
+def _sig_b64(payload=None):
+    payload = payload or {
+        "x402Version": 2,
+        "payload": {"signature": "0x1", "authorization": {}},
+    }
+    return base64.b64encode(json.dumps(payload).encode()).decode()
+
+
+# 16. facilitator_ready(): fail-closed unless all three OKX creds AND real payTo.
+def test_facilitator_ready_gate():
+    real = "0x" + "33" * 20
+    assert PaymentConfig().facilitator_ready() is False
+    # all three creds but placeholder payTo -> not ready
+    assert (
+        PaymentConfig(
+            okx_api_key="k", okx_secret_key="s", okx_passphrase="p"
+        ).facilitator_ready()
+        is False
+    )
+    # real payTo but one credential missing -> not ready
+    assert (
+        PaymentConfig(
+            pay_to=real, okx_api_key="k", okx_secret_key="s"
+        ).facilitator_ready()
+        is False
+    )
+    # all present -> ready
+    assert (
+        PaymentConfig(
+            pay_to=real, okx_api_key="k", okx_secret_key="s", okx_passphrase="p"
+        ).facilitator_ready()
+        is True
+    )
+
+
+# 17. from_env reads the OKX creds; partial creds warn but stay fail-closed;
+#     credential VALUES are never logged.
+def test_from_env_okx_creds(caplog):
+    cfg = PaymentConfig.from_env(
+        {
+            "TRUSTLENS_PAY_TO": "0x" + "44" * 20,
+            "OKX_API_KEY": "ak",
+            "OKX_SECRET_KEY": "sk",
+            "OKX_PASSPHRASE": "pp",
+        }
+    )
+    assert (cfg.okx_api_key, cfg.okx_secret_key, cfg.okx_passphrase) == ("ak", "sk", "pp")
+    assert cfg.okx_base_url == "https://web3.okx.com"  # documented default
+    assert cfg.facilitator_ready() is True
+
+    with caplog.at_level(logging.WARNING, logger="server.payments"):
+        partial = PaymentConfig.from_env({"OKX_API_KEY": "ak"})
+    assert partial.facilitator_ready() is False
+    assert any("partially set" in r.message for r in caplog.records)
+    assert not any("ak" in r.message for r in caplog.records)  # values never leak
+
+
+# 18. make_verifier selects OkxFacilitatorVerifier when ready; mock still wins;
+#     no creds -> fail-closed Unconfigured (existing contract preserved).
+def test_make_verifier_okx_selection(caplog):
+    real = "0x" + "55" * 20
+    ready = PaymentConfig(
+        pay_to=real, okx_api_key="k", okx_secret_key="s", okx_passphrase="p"
+    )
+    with caplog.at_level(logging.INFO, logger="server.payments"):
+        v = make_verifier(ready)
+    assert isinstance(v, OkxFacilitatorVerifier)
+    assert any("OKX facilitator" in r.message for r in caplog.records)
+    # mock precedence: X402_MOCK wins even with creds present.
+    assert isinstance(
+        make_verifier(
+            PaymentConfig(
+                mock=True,
+                pay_to=real,
+                okx_api_key="k",
+                okx_secret_key="s",
+                okx_passphrase="p",
+            )
+        ),
+        MockVerifier,
+    )
+    # no creds -> still fail-closed.
+    assert isinstance(make_verifier(PaymentConfig(pay_to=real)), UnconfiguredVerifier)
+
+
+# 19. OkxFacilitatorVerifier delegates to an injected facilitator; verify is
+#     FAIL-CLOSED on any error; settle returns the receipt dict.
+def test_okx_verifier_delegation_and_fail_closed():
+    sig = _sig_b64()
+    req = build_requirements(PaymentConfig())
+
+    ok = OkxFacilitatorVerifier(
+        PaymentConfig(),
+        facilitator=_FakeFacilitator(
+            valid=True, receipt={"success": True, "transaction": "0xabc"}
+        ),
+    )
+    assert asyncio.run(ok.verify(sig, req)) is True
+    receipt = asyncio.run(ok.settle(sig, req))
+    assert receipt["success"] is True and receipt["transaction"] == "0xabc"
+
+    # invalid proof -> False (402).
+    invalid = OkxFacilitatorVerifier(
+        PaymentConfig(), facilitator=_FakeFacilitator(valid=False)
+    )
+    assert asyncio.run(invalid.verify(sig, req)) is False
+
+    # facilitator raising -> verify returns False (402), never crashes the gate.
+    boom = OkxFacilitatorVerifier(
+        PaymentConfig(), facilitator=_FakeFacilitator(raise_on_verify=True)
+    )
+    assert asyncio.run(boom.verify(sig, req)) is False
+
+    # malformed (non-base64/JSON) signature -> False, never raises.
+    assert asyncio.run(ok.verify("!!!not valid!!!", req)) is False

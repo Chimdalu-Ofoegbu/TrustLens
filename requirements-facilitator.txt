@@ -1,0 +1,10 @@
+# Deploy-time ONLY (PAYX-04 real settlement) — NOT part of the core runtime.
+# Install alongside requirements.txt when enabling real OKX x402 settlement:
+#   pip install -r requirements-facilitator.txt
+# Provides the `x402` module used lazily by
+# server.payments.OkxFacilitatorVerifier (imported only when creds are present).
+#
+# NOTE: this SDK pulls fastapi/pydantic/web3 extras and may resolve
+# fastapi/starlette differently from the pinned core stack — install it into the
+# deploy environment and verify the app still boots and /healthz returns 200.
+okxweb3-app-x402==0.1.1

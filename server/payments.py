@@ -100,6 +100,24 @@ class PaymentConfig:
     base_url: str = "http://localhost:8000"
     network: str = "eip155:196"
     asset: str = XLAYER_USDT
+    # PAYX-04 real settlement (deploy-time, human-only OKX creds). Empty by
+    # default -> facilitator_ready() is False -> make_verifier stays fail-closed.
+    okx_api_key: str = ""
+    okx_secret_key: str = ""
+    okx_passphrase: str = ""
+    okx_base_url: str = "https://web3.okx.com"
+
+    def facilitator_ready(self) -> bool:
+        """True ONLY when real OKX-facilitator settlement can be enabled: all
+        three OKX API credentials present AND a real payTo configured. Absent
+        any of them, make_verifier returns the fail-closed UnconfiguredVerifier
+        (every paid call 402s) - real settlement is never on by accident."""
+        return bool(
+            self.okx_api_key
+            and self.okx_secret_key
+            and self.okx_passphrase
+            and self.pay_to != PLACEHOLDER_PAY_TO
+        )
 
     @classmethod
     def from_env(cls, env: Mapping[str, str] | None = None) -> "PaymentConfig":
@@ -111,11 +129,22 @@ class PaymentConfig:
             # fail-closed: ONLY the exact string "1" enables mock mode
             mock=env.get("X402_MOCK") == "1",
             base_url=env.get("TRUSTLENS_BASE_URL", "http://localhost:8000"),
+            okx_api_key=env.get("OKX_API_KEY", ""),
+            okx_secret_key=env.get("OKX_SECRET_KEY", ""),
+            okx_passphrase=env.get("OKX_PASSPHRASE", ""),
+            okx_base_url=env.get("OKX_BASE_URL", "https://web3.okx.com"),
         )
         if cfg.pay_to == PLACEHOLDER_PAY_TO:
             log.warning(
                 "TRUSTLENS_PAY_TO is unset - using the placeholder address; "
                 "real payments CANNOT settle until it is configured"
+            )
+        okx_flags = (bool(cfg.okx_api_key), bool(cfg.okx_secret_key), bool(cfg.okx_passphrase))
+        if any(okx_flags) and not all(okx_flags):
+            log.warning(
+                "OKX facilitator credentials are partially set - real settlement "
+                "stays DISABLED (fail-closed) until OKX_API_KEY, OKX_SECRET_KEY, "
+                "and OKX_PASSPHRASE are ALL present (values never logged)"
             )
         return cfg
 
@@ -258,10 +287,134 @@ class UnconfiguredVerifier:
         raise RuntimeError("UnconfiguredVerifier cannot settle")
 
 
+# ---------------------------------------------------------------------------
+# real settlement (PAYX-04): OKX facilitator verifier at the SAME seam
+# ---------------------------------------------------------------------------
+# Option B: the pure-ASGI X402Middleware keeps doing the MCP-method gating + 402;
+# ONLY verify/settle swap to the OKX x402 facilitator. Selected by make_verifier
+# exclusively when cfg.facilitator_ready() (all three OKX creds + real payTo) -
+# a route-based middleware swap would gate all of /mcp uniformly and break the
+# free MCP handshake (initialize/tools/list), so we keep our method-level gate.
+#
+# API verified 2026-07-14 against OKX's seller-SDK docs
+# (web3.okx.com/onchainos/dev-docs/payments/service-seller-sdk):
+#   from x402.http import OKXAuthConfig, OKXFacilitatorClient, OKXFacilitatorConfig
+#   from x402.mechanisms.evm.exact.server import ExactEvmScheme
+#   from x402.server import x402ResourceServer
+#   OKXFacilitatorClient(OKXFacilitatorConfig(
+#       auth=OKXAuthConfig(api_key=..., secret_key=..., passphrase=...),
+#       base_url="https://web3.okx.com"))
+#   x402ResourceServer(facilitator).register("eip155:196", ExactEvmScheme())
+# The one detail to confirm against the INSTALLED okxweb3-app-x402 at deploy
+# (RUNBOOK 3b) is the facilitator verify/settle call surface, isolated in
+# _okx_verify / _okx_settle - a rename is a one-line change.
+
+
+def _decode_payment_payload(payment_b64: str) -> dict:
+    """Base64 PAYMENT-SIGNATURE header value -> x402 payload dict
+    ({x402Version, resource, accepted, payload:{signature, authorization}})."""
+    return json.loads(base64.b64decode(payment_b64))
+
+
+def _build_okx_facilitator(cfg: PaymentConfig):
+    """Lazily import okxweb3-app-x402 and build the OKX facilitator for X Layer.
+    Imported ONLY here so the SDK is never required by the core app, the tests,
+    or the fail-closed default - only when real settlement is actually on."""
+    from x402.http import (  # deploy-time only (requirements-facilitator.txt)
+        OKXAuthConfig,
+        OKXFacilitatorClient,
+        OKXFacilitatorConfig,
+    )
+    from x402.mechanisms.evm.exact.server import ExactEvmScheme
+    from x402.server import x402ResourceServer
+
+    facilitator = OKXFacilitatorClient(
+        OKXFacilitatorConfig(
+            auth=OKXAuthConfig(
+                api_key=cfg.okx_api_key,
+                secret_key=cfg.okx_secret_key,
+                passphrase=cfg.okx_passphrase,
+            ),
+            base_url=cfg.okx_base_url,
+        )
+    )
+    # register the exact-EVM scheme for the configured network (wires the scheme
+    # handler); keep the server referenced alongside the facilitator.
+    server = x402ResourceServer(facilitator)
+    server.register(cfg.network, ExactEvmScheme())
+    return facilitator, server
+
+
+async def _okx_verify(facilitator, payload: dict, requirements: dict):
+    """CONFIRM against installed okxweb3-app-x402 (RUNBOOK 3b). x402 SDK shape:
+    `await facilitator.verify(payload, requirements)` -> result with .is_valid."""
+    return await facilitator.verify(payload, requirements)
+
+
+async def _okx_settle(facilitator, payload: dict, requirements: dict):
+    """CONFIRM against installed okxweb3-app-x402 (RUNBOOK 3b). x402 SDK shape:
+    `await facilitator.settle(payload, requirements)` -> settlement result."""
+    return await facilitator.settle(payload, requirements)
+
+
+def _receipt_dict(result) -> dict:
+    """Normalize a facilitator settlement result to a plain dict for the
+    PAYMENT-RESPONSE receipt (dict as-is, else pydantic/obj -> dict)."""
+    if isinstance(result, dict):
+        return result
+    for attr in ("model_dump", "to_dict", "dict"):
+        fn = getattr(result, attr, None)
+        if callable(fn):
+            out = fn()
+            if isinstance(out, dict):
+                return out
+    return {"settled": True, "detail": str(result)}
+
+
+class OkxFacilitatorVerifier:
+    """Real settlement via the OKX x402 facilitator, at the SAME PaymentVerifier
+    seam as Mock/Unconfigured. Fail-closed by construction: ANY verify error is
+    swallowed to False (the request 402s), so a mis-set credential or an SDK
+    shape mismatch can never serve paid product unpaid or crash the gate; settle
+    runs only after a True verify. The facilitator is built lazily (or injected
+    for tests)."""
+
+    mode = "okx-facilitator"
+
+    def __init__(self, cfg: PaymentConfig, facilitator: Any | None = None) -> None:
+        self.cfg = cfg
+        self._facilitator = facilitator  # injected in tests; built lazily otherwise
+        self._server = None
+
+    def _get_facilitator(self):
+        if self._facilitator is None:
+            self._facilitator, self._server = _build_okx_facilitator(self.cfg)
+        return self._facilitator
+
+    async def verify(self, payment_b64: str, requirements: dict) -> bool:
+        try:
+            facilitator = self._get_facilitator()
+            payload = _decode_payment_payload(payment_b64)
+            result = await _okx_verify(facilitator, payload, requirements)
+            return bool(getattr(result, "is_valid", result))
+        except Exception:  # fail-closed: deny (402), never crash the gate
+            log.exception("OKX facilitator verify failed - denying (402)")
+            return False
+
+    async def settle(self, payment_b64: str, requirements: dict) -> dict:
+        facilitator = self._get_facilitator()
+        payload = _decode_payment_payload(payment_b64)
+        result = await _okx_settle(facilitator, payload, requirements)
+        return _receipt_dict(result)
+
+
 def make_verifier(cfg: PaymentConfig) -> PaymentVerifier:
     if cfg.mock:
         log.warning("X402_MOCK=1 - payments are NOT verified (mock mode)")
         return MockVerifier(cfg)
+    if cfg.facilitator_ready():
+        log.info("x402 verifier: OKX facilitator (real settlement on %s)", cfg.network)
+        return OkxFacilitatorVerifier(cfg)
     log.info("x402 verifier: unconfigured (all paid requests will 402)")
     return UnconfiguredVerifier()
 

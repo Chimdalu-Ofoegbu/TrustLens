@@ -113,12 +113,24 @@ TRUSTLENS_BASE_URL=https://<host> # real HTTPS base, no trailing slash
 > verifier that accepts ANY payment signature. Empty = fail-closed (every unpaid call → 402).
 > On a PaaS, set these as platform secrets (e.g. `fly secrets set ...`) instead of a file.
 
-**3b. Wire the real payment SDK.** In `server/payments.py`, replace the fail-closed
-`UnconfiguredVerifier` at the `make_verifier` / `PaymentVerifier` seam with `okxweb3-app-x402`'s
-facilitator, authenticated with your OKX creds **as deploy secrets** (never committed):
+**3b. Enable real settlement (already wired — Option B).** `server/payments.py` ships
+`OkxFacilitatorVerifier` at the `make_verifier` seam; it activates automatically once all three OKX
+credentials are present **and** `TRUSTLENS_PAY_TO` is a real address (otherwise it stays
+fail-closed — every paid call 402s). To turn it on at deploy:
+```bash
+pip install -r requirements-facilitator.txt          # okxweb3-app-x402 SDK, deploy env only
+```
+Set as deploy secrets (never committed):
 ```
 OKX_API_KEY=...   OKX_SECRET_KEY=...   OKX_PASSPHRASE=...   # HUMAN-ONLY stop condition
+OKX_BASE_URL=https://web3.okx.com                          # default; from OKX seller-SDK docs
 ```
+On boot the log reads `x402 verifier: OKX facilitator (real settlement on eip155:196)`. The verify /
+settle call surface is isolated in `_okx_verify` / `_okx_settle`; confirm the method names match the
+installed SDK once — `python -c "import x402.http as h; print(sorted(dir(h)))"` and inspect
+`OKXFacilitatorClient`. Validate on **testnet** (`eip155:1952`) before mainnet — the verifier is
+fail-closed, so any mismatch denies (402) rather than mis-serving. API source:
+`web3.okx.com/onchainos/dev-docs/payments/service-seller-sdk` (Python tab).
 
 **3c. Redeploy, then run the OKX pre-registration check** against the live host:
 ```bash
