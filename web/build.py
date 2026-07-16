@@ -19,6 +19,7 @@ file.
 from __future__ import annotations
 
 import html
+import shutil
 import sqlite3
 from pathlib import Path
 from string import Template
@@ -736,6 +737,22 @@ def _snippets(base_url: str) -> tuple[str, str]:
     return html.escape(snippet_html_raw), html.escape(snippet_md_raw)
 
 
+# Static icon assets served alongside the leaderboard. Browsers auto-request
+# /favicon.ico and iOS auto-requests /apple-touch-icon.png at the origin root,
+# so copying them next to index.html (served by the StaticFiles mount at /) is
+# enough — no <link> in the page, keeping WEB-01 self-containment intact.
+_STATIC_ASSETS = ("favicon.ico", "favicon.svg", "apple-touch-icon.png")
+
+
+def _copy_static_assets(dest_dir: Path) -> None:
+    """Copy committed web/ icon assets into the build output dir (best-effort)."""
+    src_dir = Path(__file__).resolve().parent
+    for name in _STATIC_ASSETS:
+        src = src_dir / name
+        if src.exists():
+            shutil.copyfile(src, dest_dir / name)
+
+
 def build(
     db_path: str | Path,
     out_path: str | Path,
@@ -784,4 +801,5 @@ def build(
     out.parent.mkdir(parents=True, exist_ok=True)
     data = page.encode("utf-8")
     out.write_bytes(data)
+    _copy_static_assets(out.parent)
     return len(data)
