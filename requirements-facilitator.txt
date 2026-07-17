@@ -4,7 +4,11 @@
 # Provides the `x402` module used lazily by
 # server.payments.OkxFacilitatorVerifier (imported only when creds are present).
 #
-# NOTE: this SDK pulls fastapi/pydantic/web3 extras and may resolve
-# fastapi/starlette differently from the pinned core stack — install it into the
-# deploy environment and verify the app still boots and /healthz returns 200.
+# NOTE: the base package (no extras) pulls ONLY pydantic, nest-asyncio, and
+# typing-extensions — it needs NO local web3/eth-account. web3/fastapi/starlette
+# live behind the optional [evm]/[all]/... extras, which we do NOT install: we call
+# the HOSTED OKX facilitator over HTTPS (its POSTs reuse the httpx already pinned by
+# the core requirements.txt), so no scheme handler or local signer is required and
+# the pinned fastapi/starlette stack is not re-resolved. Still, install into the
+# deploy environment and verify the app boots and /healthz returns 200.
 okxweb3-app-x402==0.1.1

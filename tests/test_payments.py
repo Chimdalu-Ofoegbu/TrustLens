@@ -448,3 +448,36 @@ def test_okx_verifier_delegation_and_fail_closed():
 
     # malformed (non-base64/JSON) signature -> False, never raises.
     assert asyncio.run(ok.verify("!!!not valid!!!", req)) is False
+
+
+# 20. SDK-present only (deploy env): the real dict->model adapter built by
+#     _build_okx_facilitator exposes async verify/settle, and our camelCase
+#     accepts[0] envelope (payTo/maxTimeoutSeconds) validates into the SDK's
+#     PaymentRequirements model. Guarded by importorskip so it is SKIPPED wherever
+#     okxweb3-app-x402 is absent (the core app + this test env) - it never gates the
+#     suite, but locks the real-client seam correct-by-construction against
+#     okxweb3-app-x402==0.1.1 where the SDK IS installed. No network: only client
+#     construction + model validation happen here (no verify/settle call is made).
+def test_okx_real_adapter_seam_when_sdk_present():
+    pytest.importorskip("x402")
+    import inspect
+
+    from server.payments import _build_okx_facilitator
+    from x402.schemas.payments import PaymentRequirements
+
+    cfg = PaymentConfig(
+        pay_to="0x" + "66" * 20,
+        okx_api_key="dummy",
+        okx_secret_key="dummy",
+        okx_passphrase="dummy",
+    )
+    adapter = _build_okx_facilitator(cfg)
+    # the adapter stays SDK-free at the verifier seam: async verify/settle taking
+    # plain dicts, exactly like the injected _FakeFacilitator above.
+    assert inspect.iscoroutinefunction(adapter.verify)
+    assert inspect.iscoroutinefunction(adapter.settle)
+    # our accepts[0] dict validates into the SDK model (camelCase aliases resolve).
+    pr = PaymentRequirements.model_validate(build_requirements(cfg)["accepts"][0])
+    assert pr.pay_to == cfg.pay_to
+    assert pr.amount == "10000"
+    assert pr.max_timeout_seconds == 300

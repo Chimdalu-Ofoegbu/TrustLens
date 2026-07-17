@@ -296,18 +296,21 @@ class UnconfiguredVerifier:
 # a route-based middleware swap would gate all of /mcp uniformly and break the
 # free MCP handshake (initialize/tools/list), so we keep our method-level gate.
 #
-# API verified 2026-07-14 against OKX's seller-SDK docs
-# (web3.okx.com/onchainos/dev-docs/payments/service-seller-sdk):
+# API verified 2026-07-17 against the installed okxweb3-app-x402==0.1.1:
 #   from x402.http import OKXAuthConfig, OKXFacilitatorClient, OKXFacilitatorConfig
-#   from x402.mechanisms.evm.exact.server import ExactEvmScheme
-#   from x402.server import x402ResourceServer
-#   OKXFacilitatorClient(OKXFacilitatorConfig(
+#   from x402.schemas.payments import PaymentPayload, PaymentRequirements
+#   client = OKXFacilitatorClient(OKXFacilitatorConfig(
 #       auth=OKXAuthConfig(api_key=..., secret_key=..., passphrase=...),
-#       base_url="https://web3.okx.com"))
-#   x402ResourceServer(facilitator).register("eip155:196", ExactEvmScheme())
-# The one detail to confirm against the INSTALLED okxweb3-app-x402 at deploy
-# (RUNBOOK 3b) is the facilitator verify/settle call surface, isolated in
-# _okx_verify / _okx_settle - a rename is a one-line change.
+#       base_url="https://web3.okx.com"))          # HOSTED facilitator, HMAC-signed
+#   await client.verify(PaymentPayload, PaymentRequirements) -> VerifyResponse(.is_valid)
+#   await client.settle(PaymentPayload, PaymentRequirements) -> SettleResponse(.model_dump())
+# The hosted client POSTs verify/settle to OKX and needs NO local web3/eth-account
+# and NO scheme registration (no x402ResourceServer / ExactEvmScheme). To keep the
+# SDK out of the core app and the tests, OkxFacilitatorVerifier stays SDK-free and
+# passes plain dicts; the dict->pydantic-model conversion is confined to the
+# _OkxClientAdapter built in _build_okx_facilitator, so the injected test fake needs
+# no SDK. The facilitator verify/settle call surface is isolated in _okx_verify /
+# _okx_settle.
 
 
 def _decode_payment_payload(payment_b64: str) -> dict:
@@ -317,18 +320,22 @@ def _decode_payment_payload(payment_b64: str) -> dict:
 
 
 def _build_okx_facilitator(cfg: PaymentConfig):
-    """Lazily import okxweb3-app-x402 and build the OKX facilitator for X Layer.
-    Imported ONLY here so the SDK is never required by the core app, the tests,
-    or the fail-closed default - only when real settlement is actually on."""
-    from x402.http import (  # deploy-time only (requirements-facilitator.txt)
-        OKXAuthConfig,
-        OKXFacilitatorClient,
-        OKXFacilitatorConfig,
-    )
-    from x402.mechanisms.evm.exact.server import ExactEvmScheme
-    from x402.server import x402ResourceServer
+    """Lazily import okxweb3-app-x402 (v0.1.1) and build a dict->model adapter over
+    the OKX HOSTED facilitator client for X Layer. Imported ONLY here so the SDK is
+    never required by the core app, the tests, or the fail-closed default. The
+    adapter keeps OkxFacilitatorVerifier SDK-free (it passes plain dicts): the SDK's
+    pydantic models are constructed here, at the real-client boundary, so the
+    injected fake in tests needs no SDK.
 
-    facilitator = OKXFacilitatorClient(
+    API verified 2026-07-17 against the installed okxweb3-app-x402==0.1.1:
+    OKXFacilitatorClient POSTs verify/settle to OKX's hosted facilitator (base_url
+    default https://web3.okx.com, HMAC-signed) - no local web3/eth-account or scheme
+    registration. verify -> VerifyResponse(.is_valid); settle -> SettleResponse.
+    """
+    from x402.http import OKXAuthConfig, OKXFacilitatorClient, OKXFacilitatorConfig
+    from x402.schemas.payments import PaymentPayload, PaymentRequirements
+
+    client = OKXFacilitatorClient(
         OKXFacilitatorConfig(
             auth=OKXAuthConfig(
                 api_key=cfg.okx_api_key,
@@ -338,22 +345,42 @@ def _build_okx_facilitator(cfg: PaymentConfig):
             base_url=cfg.okx_base_url,
         )
     )
-    # register the exact-EVM scheme for the configured network (wires the scheme
-    # handler); keep the server referenced alongside the facilitator.
-    server = x402ResourceServer(facilitator)
-    server.register(cfg.network, ExactEvmScheme())
-    return facilitator, server
+
+    class _OkxClientAdapter:
+        """Convert the decoded PAYMENT-SIGNATURE dict + our requirements envelope
+        into the SDK's pydantic models, then delegate to the hosted client."""
+
+        async def verify(self, payload: dict, requirements: dict):
+            return await client.verify(
+                PaymentPayload.model_validate(payload),
+                PaymentRequirements.model_validate(requirements["accepts"][0]),
+            )
+
+        async def settle(self, payload: dict, requirements: dict):
+            return await client.settle(
+                PaymentPayload.model_validate(payload),
+                PaymentRequirements.model_validate(requirements["accepts"][0]),
+            )
+
+    return _OkxClientAdapter()
 
 
 async def _okx_verify(facilitator, payload: dict, requirements: dict):
-    """CONFIRM against installed okxweb3-app-x402 (RUNBOOK 3b). x402 SDK shape:
-    `await facilitator.verify(payload, requirements)` -> result with .is_valid."""
+    """Thin dict-in pass-through to the injected facilitator/adapter's async verify.
+    API verified against okxweb3-app-x402==0.1.1: the real _OkxClientAdapter
+    (built in _build_okx_facilitator) constructs the SDK's PaymentPayload /
+    PaymentRequirements models from these plain dicts and calls the hosted client,
+    whose VerifyResponse exposes `.is_valid`. Kept dict-in so this seam and the
+    injected test fake never need the SDK."""
     return await facilitator.verify(payload, requirements)
 
 
 async def _okx_settle(facilitator, payload: dict, requirements: dict):
-    """CONFIRM against installed okxweb3-app-x402 (RUNBOOK 3b). x402 SDK shape:
-    `await facilitator.settle(payload, requirements)` -> settlement result."""
+    """Thin dict-in pass-through to the injected facilitator/adapter's async settle.
+    API verified against okxweb3-app-x402==0.1.1: the real _OkxClientAdapter builds
+    the SDK's pydantic models from these plain dicts and calls the hosted client,
+    returning a SettleResponse that _receipt_dict normalizes. Kept dict-in so this
+    seam and the injected test fake never need the SDK."""
     return await facilitator.settle(payload, requirements)
 
 
@@ -384,11 +411,10 @@ class OkxFacilitatorVerifier:
     def __init__(self, cfg: PaymentConfig, facilitator: Any | None = None) -> None:
         self.cfg = cfg
         self._facilitator = facilitator  # injected in tests; built lazily otherwise
-        self._server = None
 
     def _get_facilitator(self):
         if self._facilitator is None:
-            self._facilitator, self._server = _build_okx_facilitator(self.cfg)
+            self._facilitator = _build_okx_facilitator(self.cfg)
         return self._facilitator
 
     async def verify(self, payment_b64: str, requirements: dict) -> bool:
